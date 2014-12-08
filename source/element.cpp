@@ -6,7 +6,9 @@
 namespace JVJSON_NAMESPACE_NAME
 {
     
-bool_t Element::HasElement(char* elementName)
+Element undefinedElement;
+    
+bool_t Element::HasElement(const std::string& elementName) const
 {
     bool_t exists;
     
@@ -15,7 +17,7 @@ bool_t Element::HasElement(char* elementName)
     return exists;
 }
 
-bool_t Element::HasElement(uint32_t elementIndex)
+bool_t Element::HasElement(uint32_t elementIndex) const
 {
     bool_t exists;
     
@@ -24,9 +26,9 @@ bool_t Element::HasElement(uint32_t elementIndex)
     return exists;
 }
     
-Element* Element::GetElement(char* elementName)
+Element& Element::GetElement(const std::string& elementName) const
 {
-    Element* e;
+    Element& e = undefinedElement;
     bool_t exists;
     
     e = this->GetElement(elementName, exists);
@@ -40,9 +42,9 @@ Element* Element::GetElement(char* elementName)
     return e;
 }
 
-Element* Element::GetElement(uint32_t elementIndex)
+Element& Element::GetElement(const uint32_t elementIndex) const
 {
-    Element* e;
+    Element& e = undefinedElement;
     bool_t exists;
     
     e = this->GetElement(elementIndex, exists);
@@ -56,22 +58,22 @@ Element* Element::GetElement(uint32_t elementIndex)
     return e;
 }
 
-Element* Element::GetElement(char* elementName, bool_t& exists)
+Element& Element::GetElement(const std::string& elementName, bool_t& exists) const
 {
-    if ((this->schemaElement) && (strcmp(elementName, "$schema") == 0))
+    if ((this->schemaElement) && (elementName == std::string("schema")))
     {
         exists = true;
-        return this->schemaElement;
+        return *(this->schemaElement);
     }
     
     exists = false;
-    return nullptr;
+    return undefinedElement;
 }
 
-Element* Element::GetElement(uint32_t elementIndex, bool_t& exists)
+Element& Element::GetElement(const uint32_t elementIndex, bool_t& exists) const
 {
     exists = false;
-    return nullptr;
+    return undefinedElement;
 }
     
 uint8_t Element::GetValueAsUint8(bool_t allowConversion, bool_t* valid)

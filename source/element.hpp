@@ -50,17 +50,19 @@ class Element
 {
 public:
     
-    bool_t HasElement(char* elementName);
-    bool_t HasElement(uint32_t elementIndex);
+    bool_t HasElement(const std::string& elementName) const;
+    bool_t HasElement(const uint32_t elementIndex) const;
     
-    Element* GetElement(char* elementName);
-    Element* GetElement(uint32_t elementIndex);
+    Element& GetElement(const std::string& elementName) const;
+    Element& GetElement(const uint32_t elementIndex) const;
 
-    virtual Element* GetElement(char* elementName, bool_t& exists);
-    virtual Element* GetElement(uint32_t elementIndex, bool_t& exists);
+    virtual Element& GetElement(const std::string& elementName, bool_t& exists) const;
+    virtual Element& GetElement(const uint32_t elementIndex, bool_t& exists) const;
     
-    void GetElementValue(char* elementName, uint8_t& valueVariable, bool_t allowConversion=false);
-    void GetElementValue(uint32_t elementIndex, uint8_t& valueVariable, bool_t allowConversion=false);    
+    virtual void AddElement(const std::string& elementName, Element& element);
+    virtual void AddElement(const uint32_t elementIndex, Element* element);
+    
+    void GetElementValue(const std::string& elementName, uint8_t& valueVariable, bool_t allowConversion=false);
     
     void GetValue(bool_t& valueVariable, const bool_t allowConversion=false);
     void GetValue(uint8_t& valueVariable, const bool_t allowConversion=false);

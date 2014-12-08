@@ -1,7 +1,8 @@
 //////////////////////////////////////////////////////////////////////
 /// @file
 ///
-/// Header file for JSON element type items.
+/// Header file for JSON Element Object class.  Represents a JSON
+/// Object (mapping, dictionary).  
 ///
 /// Part of the JV JSON parser project, 
 /// https://github.com/jvechinski/jv_json
@@ -32,28 +33,29 @@
 /// SOFTWARE.
 //////////////////////////////////////////////////////////////////////
 
-#if !defined(JVJSON_ELEMENT_TYPE_HPP)
-#define JVJSON_ELEMENT_TYPE_HPP
+#if !defined(JVJSON_ELEMENT_OBJECT_HPP)
+#define JVJSON_ELEMENT_OBJECT_HPP
 
 #include "global.hpp"
+#include "types.hpp"
+#include "element.hpp"
+
+#include <string>
+#include <unordered_map>
 
 namespace JVJSON_NAMESPACE_NAME
 {
-
-enum ElementType
+    
+/// This class represents a single element in a JSON document.
+/// Elements can either be complex container types (i.e. Objects
+/// and Arrays) or simple values (Integers, Strings, and Booleans).
+class ElementObject : Element
 {
-    ELEMENT_TYPE_NULL,
-    ELEMENT_TYPE_INTEGER,
-    ELEMENT_TYPE_NUMBER,
-    ELEMENT_TYPE_STRING,
-    ELEMENT_TYPE_BOOLEAN,
-    ELEMENT_TYPE_ARRAY,
-    ELEMENT_TYPE_OBJECT,
-    ELEMENT_TYPE_REFERENCE,
-    ELEMENT_TYPE_UNDEFINED
-};
 
-const char* ElementTypeToString(ElementType type);
+private:
+    std::unordered_map<string, Element> map;
+
+};
 
 };
 
