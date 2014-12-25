@@ -44,6 +44,8 @@ typedef bool bool_t;
 typedef float float32_t;
 typedef double float64_t;
 
+// Define a "nullptr" identifier for pre-C++11 compilations.
+#if __cplusplus <= 199711L
 const                        // this is a const object...
 class {
 public:
@@ -56,5 +58,6 @@ public:
 private:
   void operator&() const;    // whose address can't be taken
 } nullptr = {};              // and whose name is nullptr
+#endif
 
 #endif

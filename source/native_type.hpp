@@ -42,6 +42,7 @@ namespace JVJSON_NAMESPACE_NAME
 
 enum NativeType
 {
+    NATIVE_TYPE_BIT,
     NATIVE_TYPE_UINT8,
     NATIVE_TYPE_UINT16,
     NATIVE_TYPE_UINT32,
@@ -52,12 +53,15 @@ enum NativeType
     NATIVE_TYPE_INT64,
     NATIVE_TYPE_FLOAT32,
     NATIVE_TYPE_FLOAT64,
+    NATIVE_TYPE_NONE,
 };
 
 const char* GetNativeTypeString(NativeType type);
 
-uint32_t GetNativeTypeSize(NativeType type);
+std::size_t GetNativeTypeSize(NativeType type);
 
-uint32_t GetNativeTypeAlignment(NativeType type);
+std::size_t GetNativeTypeAlignment(NativeType type);
 
 };
+
+#endif

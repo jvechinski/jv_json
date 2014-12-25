@@ -1,14 +1,23 @@
 #include "element.hpp"
+#include "document.hpp"
 #include "exception.hpp"
 
 #include <cstring>
 
 namespace JVJSON_NAMESPACE_NAME
 {
+
+ElementType Element::GetType(void) const
+{
+    return ELEMENT_TYPE_UNDEFINED;
+}
     
-Element undefinedElement;
+NativeType Element::GetNativeType(void) const
+{
+    return NATIVE_TYPE_NONE;
+}
     
-bool_t Element::HasElement(const std::string& elementName) const
+bool_t Element::HasElement(const std::string& elementName)
 {
     bool_t exists;
     
@@ -17,7 +26,7 @@ bool_t Element::HasElement(const std::string& elementName) const
     return exists;
 }
 
-bool_t Element::HasElement(uint32_t elementIndex) const
+bool_t Element::HasElement(uint32_t elementIndex)
 {
     bool_t exists;
     
@@ -25,13 +34,17 @@ bool_t Element::HasElement(uint32_t elementIndex) const
     
     return exists;
 }
-    
-Element& Element::GetElement(const std::string& elementName) const
+
+Element& Element::GetElement(const char* elementName)
 {
-    Element& e = undefinedElement;
+    return this->GetElement(std::string(elementName));
+}
+    
+Element& Element::GetElement(const std::string& elementName)
+{
     bool_t exists;
     
-    e = this->GetElement(elementName, exists);
+    Element& e = this->GetElement(elementName, exists);
     
     if (!exists)
     {
@@ -42,12 +55,11 @@ Element& Element::GetElement(const std::string& elementName) const
     return e;
 }
 
-Element& Element::GetElement(const uint32_t elementIndex) const
+Element& Element::GetElement(const uint32_t elementIndex)
 {
-    Element& e = undefinedElement;
     bool_t exists;
     
-    e = this->GetElement(elementIndex, exists);
+    Element& e = this->GetElement(elementIndex, exists);
     
     if (!exists)
     {
@@ -58,7 +70,7 @@ Element& Element::GetElement(const uint32_t elementIndex) const
     return e;
 }
 
-Element& Element::GetElement(const std::string& elementName, bool_t& exists) const
+Element& Element::GetElement(const std::string& elementName, bool_t& exists)
 {
     if ((this->schemaElement) && (elementName == std::string("schema")))
     {
@@ -67,16 +79,75 @@ Element& Element::GetElement(const std::string& elementName, bool_t& exists) con
     }
     
     exists = false;
-    return undefinedElement;
+    return this->document->GetUndefinedElement();
 }
 
-Element& Element::GetElement(const uint32_t elementIndex, bool_t& exists) const
+Element& Element::GetElement(const uint32_t elementIndex, bool_t& exists)
 {
     exists = false;
-    return undefinedElement;
+    return this->document->GetUndefinedElement();
 }
-    
+
+Element& Element::operator[](const char* elementName)
+{
+    return this->GetElement(elementName);
+}
+
+Element& Element::operator[](const std::string& elementName)
+{
+    return this->GetElement(elementName);
+}
+
+//const Element& Element::operator[](const std::string& elementName) const
+//{
+//    return const_cast<Element&>(this->GetElement(elementName));
+//}
+
+void Element::AddElement(const std::string& elementName, Element& element)
+{
+    RaiseException(
+        std::runtime_error("Cannot add child element by name to element"));
+}
+
+void Element::AddElement(const uint32_t elementIndex, Element& element)
+{
+    RaiseException(
+        std::runtime_error("Cannot add child element by index to element"));    
+}
+ 
+bool_t Element::GetValueAsBool(bool_t allowConversion, bool_t* valid)
+{
+    if (valid)
+    {
+        *valid = false;
+    }
+    return false;
+} 
+
+Element::operator bool()
+{
+    return this->GetValueAsBool();
+}
+
 uint8_t Element::GetValueAsUint8(bool_t allowConversion, bool_t* valid)
+{
+    if (valid)
+    {
+        *valid = false;
+    }
+    return 0U;
+}
+
+uint16_t Element::GetValueAsUint16(bool_t allowConversion, bool_t* valid)
+{
+    if (valid)
+    {
+        *valid = false;
+    }
+    return 0U;
+}
+
+uint32_t Element::GetValueAsUint32(bool_t allowConversion, bool_t* valid)
 {
     if (valid)
     {
@@ -104,5 +175,13 @@ bool_t Element::ValidateTypeAgainstSchema(void)
     
     return true;
 }
-    
+
+void Element::SetValueWithBool(bool_t valueVariable, bool_t allowConversion, bool_t* valid)
+{
+    if (valid)
+    {
+        *valid = false;
+    }
+}    
+
 };

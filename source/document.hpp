@@ -35,41 +35,83 @@
 #if !defined(JVJSON_DOCUMENT_HPP)
 #define JVJSON_DOCUMENT_HPP
 
+#include <deque>
+
 #include "global.hpp"
 #include "types.hpp"
 #include "element.hpp"
+#include "native_type.hpp"
+
+/// Forward reference to cJSON item structure... we don't want to
+/// unnecessarily pull the whole cJSON mess in here.
+struct cJSON;
 
 namespace JVJSON_NAMESPACE_NAME
 {
-
+    
 /// The Document class represents a single JSON document, which is
 /// a hierarchy of JSON Elements.  
 class Document
 {
 
 public:
+    class Iterator: public std::iterator<std::forward_iterator_tag, Element>
+    {
+        public:
+            Iterator(Element* initialElement);
+            Iterator& Next(void);
+            bool_t operator==(const Iterator& other);
+            bool_t operator!=(const Iterator& other);
+            Iterator& operator++(void);
+            Iterator operator++(int postfix);
+        
+        private:
+            Element* element;
+            std::deque<Element::Iterator> containerIterators;
+    };
+
     char* GetFilename(void);
     void SetFilename(const char* filename);
 
     char* GetSchemaFilename(void);
     void SetSchemaFilename(const char* filename);
     
-    Element* GetRootElement(void);
+    Element& GetRootElement(void);
 
     bool_t HasElement(const char* elementName);
     bool_t HasElement(uint32_t elementIndex);
     
-    Element* GetElement(const char* elementName);
-    Element* GetElement(uint32_t elementIndex);
+    Element& GetElement(const char* elementName);
+    Element& GetElement(uint32_t elementIndex);
+    
+    Element& GetUndefinedElement(void);
     
     bool_t ReadFromFile(const char* filename=NULL, const char* schemaFilename=NULL);
     bool_t WriteToFile(const char* filename=NULL, const char* schemaFilename=NULL);
-        
+    
+    uint8_t* GetValueTablePointer(void);
+    
+    Iterator Begin(void);
+    Iterator End(void);
+            
 private:
+    /// This is the default integer type used if no native type is
+    /// explictly specified by the schema constraints.
+    static const NativeType DEFAULT_NATIVE_TYPE_INTEGER = NATIVE_TYPE_INT32;
+
+    /// This is the default floating point type used if no native type is
+    /// explictly specified by the schema constraints.
+    static const NativeType DEFAULT_NATIVE_TYPE_FLOAT = NATIVE_TYPE_FLOAT64;
+
+    Element* RecursiveParseCjsonItems(cJSON* item);
+    Element* ConstructElementFromCjsonItem(cJSON* item);
+    void AllocateValueTable(void);
+
     std::string filename;
     std::string schemaFilename;
     Element* rootElement;
-    void* valueTable;
+    Element undefinedElement;
+    uint8_t* valueTable;    
 };
 
 }

@@ -39,28 +39,57 @@
 
 #include "global.hpp"
 #include "types.hpp"
+#include "element_type.hpp"
+#include "native_type.hpp"
 
 namespace JVJSON_NAMESPACE_NAME
 {
+/// Forward reference to Document class.
+class Document;
     
 /// This class represents a single element in a JSON document.
 /// Elements can either be complex container types (i.e. Objects
 /// and Arrays) or simple values (Integers, Strings, and Booleans).
 class Element
 {
+/// Allow the Document class to access private members.    
+friend class Document;    
+    
 public:
-    
-    bool_t HasElement(const std::string& elementName) const;
-    bool_t HasElement(const uint32_t elementIndex) const;
-    
-    Element& GetElement(const std::string& elementName) const;
-    Element& GetElement(const uint32_t elementIndex) const;
+    class Iterator: public std::iterator<std::forward_iterator_tag, Element>
+    {
+        public:
+            Iterator(Element* parentElement);
+            Iterator& Next(void);
+            bool operator==(const Iterator& other);
+            bool operator!=(const Iterator& other);
+            Iterator& operator++(void);
+            Iterator operator++(int postfix);
+        
+        private:
+            Element* parentElement;
+    };
 
-    virtual Element& GetElement(const std::string& elementName, bool_t& exists) const;
-    virtual Element& GetElement(const uint32_t elementIndex, bool_t& exists) const;
+    virtual ElementType GetType(void) const;
+    virtual NativeType GetNativeType(void) const;
+
+    bool_t HasElement(const std::string& elementName);
+    bool_t HasElement(const uint32_t elementIndex);
+    
+    Element& GetElement(const char* elementName);
+    Element& GetElement(const std::string& elementName);
+    Element& GetElement(const uint32_t elementIndex);
+    Element& operator[](const char* elementName); 
+    Element& operator[](const std::string& elementName); 
+    //inline const Element& operator[](const std::string& elementName) const;    
+    Element& operator[](const uint32_t elementIndex); 
+    //inline const Element& operator[](const uint32_t elementIndex) const;    
+
+    virtual Element& GetElement(const std::string& elementName, bool_t& exists);
+    virtual Element& GetElement(const uint32_t elementIndex, bool_t& exists);
     
     virtual void AddElement(const std::string& elementName, Element& element);
-    virtual void AddElement(const uint32_t elementIndex, Element* element);
+    virtual void AddElement(const uint32_t elementIndex, Element& element);
     
     void GetElementValue(const std::string& elementName, uint8_t& valueVariable, bool_t allowConversion=false);
     
@@ -75,33 +104,40 @@ public:
     void GetValue(int64_t& valueVariable, const bool_t allowConversion=false);
     void GetValue(std::string& valueVariable, const bool_t allowConversion=false);
     
-    uint32_t GetCount(void);
+    virtual std::size_t GetCount(void);
     
     virtual bool_t GetValueAsBool(bool_t allowConversion=false, bool_t* valid=nullptr);    
     virtual uint8_t GetValueAsUint8(bool_t allowConversion=false, bool_t* valid=nullptr);    
     virtual uint16_t GetValueAsUint16(bool_t allowConversion=false, bool_t* valid=nullptr);
     virtual uint32_t GetValueAsUint32(bool_t allowConversion=false, bool_t* valid=nullptr);
-    virtual uint64_t GetValueAsUint64(bool_t allowConversion=false, bool_t* valid=nullptr);
+    /*virtual uint64_t GetValueAsUint64(bool_t allowConversion=false, bool_t* valid=nullptr);
     virtual int8_t GetValueAsInt8(bool_t allowConversion=false, bool_t* valid=nullptr);    
     virtual int16_t GetValueAsInt16(bool_t allowConversion=false, bool_t* valid=nullptr);
     virtual int32_t GetValueAsInt32(bool_t allowConversion=false, bool_t* valid=nullptr);
     virtual int64_t GetValueAsInt64(bool_t allowConversion=false, bool_t* valid=nullptr);
     virtual float32_t GetValueAsFloat32(bool_t allowConversion=false, bool_t* valid=nullptr);
-    virtual float64_t GetValueAsFloat64(bool_t allowConversion=false, bool_t* valid=nullptr);
+    virtual float64_t GetValueAsFloat64(bool_t allowConversion=false, bool_t* valid=nullptr);*/
     
+    operator bool();
+        
     uint32_t GetValueAsBytesLe(uint8_t* buffer, uint32_t numberOfBytes=0);
     uint32_t GetValueAsBytesBe(uint8_t* buffer, uint32_t numberOfBytes=0);
     virtual uint32_t GetValueAsBytes(uint8_t* buffer, uint32_t numberOfBytes=0);
+
+    virtual void SetValueWithBool(bool_t valueVariable, bool_t allowConversion=false, bool_t* valid=nullptr);
    
-    void GetElementAddress(std::string& address);
+    void GetElementAddress(std::string& address);    
         
 protected:
-    void* valuePointer;
+    uint32_t valueIndex;
+    
+    /// Pointer to the Document object that contains the element.
+    Document* document;
     
     bool_t ValidateTypeAgainstSchema(void);    
 
-    virtual uint32_t GetValueTableSizeInBytes(void);
-    virtual uint32_t GetCurrentValueSizeInBytes(void);
+    //virtual uint32_t GetValueTableSizeInBytes(void);
+    //virtual uint32_t GetCurrentValueSizeInBytes(void);
     
 private:    
     /// Pointer to the parent element.  If this Element is in another

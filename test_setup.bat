@@ -1,0 +1,1 @@
+set CFGPARSE_PY_DEFAULT=defaultConfig.py

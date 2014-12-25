@@ -41,19 +41,21 @@
 #include "element.hpp"
 
 #include <string>
-#include <unordered_map>
 
 namespace JVJSON_NAMESPACE_NAME
 {
     
-/// This class represents a single element in a JSON document.
-/// Elements can either be complex container types (i.e. Objects
-/// and Arrays) or simple values (Integers, Strings, and Booleans).
-class ElementObject : Element
+/// This class represents an object (mapping, dictionary) in a JSON 
+/// document.
+class ElementObject : public Element
 {
+public:
+    virtual ElementType GetType(void) const;
+    virtual Element& GetElement(const std::string& elementName, bool_t& exists);
+    virtual void AddElement(const std::string& elementName, Element& element);    
 
 private:
-    std::unordered_map<string, Element> map;
+    JVJSON_OBJECT_TYPE map;
 
 };
 
