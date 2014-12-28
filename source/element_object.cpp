@@ -9,6 +9,11 @@ ElementType ElementObject::GetType(void) const
 {
     return ELEMENT_TYPE_OBJECT;
 }
+
+bool_t ElementObject::IsContainer(void) const
+{
+    return true;
+}  
     
 Element& ElementObject::GetElementPrivate(const std::string& elementName, bool_t* exists)
 {

@@ -14,6 +14,11 @@ NativeType ElementBoolean::GetNativeType(void) const
 {
     return NATIVE_TYPE_UINT8;
 }
+
+bool_t ElementBoolean::IsValue(void) const
+{
+    return true;
+}
     
 bool_t ElementBoolean::GetValueAsBool(bool_t allowConversion, bool_t* valid)
 {

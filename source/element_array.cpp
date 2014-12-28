@@ -13,6 +13,11 @@ ElementType ElementArray::GetType(void) const
     return ELEMENT_TYPE_ARRAY;
 }
 
+bool_t ElementArray::IsContainer(void) const
+{
+    return true;
+}    
+
 Element& ElementArray::GetElementPrivate(const std::string& elementName, bool_t* exists)
 {
     // Call parent class GetElementPrivate() to handle any common
@@ -46,8 +51,6 @@ Element& ElementArray::GetElementPrivate(const std::string& elementName, bool_t*
     
 Element& ElementArray::GetElementPrivate(const uint32_t elementIndex, bool_t* exists)
 {
-    printf("ElementArray::GetElementPrivate, %d\n", elementIndex);
-    
     // Call parent class GetElementPrivate() to handle any common
     // cases.
     Element& e = Element::GetElementPrivate(elementIndex, exists);

@@ -142,6 +142,26 @@ void Element::AddElement(Element& element)
     element.parent = this;
 }
  
+bool_t Element::IsNull(void) const
+{
+    return false;    
+}
+
+bool_t Element::IsValue(void) const
+{
+    return false;    
+}
+
+bool_t Element::IsNumber(void) const
+{
+    return false;    
+}
+
+bool_t Element::IsContainer(void) const
+{
+    return false;    
+}
+ 
 bool_t Element::GetValueAsBool(const bool_t allowConversion, bool_t* valid)
 {
     if (valid)

@@ -85,6 +85,11 @@ public:
     
     virtual std::size_t GetSize(void) const;
     
+    virtual bool_t IsNull(void) const;
+    virtual bool_t IsValue(void) const;
+    virtual bool_t IsNumber(void) const;
+    virtual bool_t IsContainer(void) const;
+    
     virtual bool_t GetValueAsBool(const bool_t allowConversion=false, bool_t* valid=nullptr);    
     virtual uint8_t GetValueAsUint8(const bool_t allowConversion=false, bool_t* valid=nullptr);    
     virtual uint16_t GetValueAsUint16(const bool_t allowConversion=false, bool_t* valid=nullptr);

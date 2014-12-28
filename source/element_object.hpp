@@ -55,6 +55,7 @@ friend class Element::Iterator;
     
 public:
     virtual ElementType GetType(void) const;
+    virtual bool_t IsContainer(void) const;
     virtual void AddElement(const std::string& elementName, Element& element);    
 
     virtual std::size_t GetSize(void) const;

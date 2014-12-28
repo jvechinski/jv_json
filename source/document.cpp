@@ -6,6 +6,7 @@
 #include "document.hpp"
 #include "element_array.hpp"
 #include "element_boolean.hpp"
+#include "element_null.hpp"
 #include "element_object.hpp"
 #include "cJSON/cJSON.h"
 
@@ -138,6 +139,9 @@ Element* Document::ConstructElementFromCjsonItem(cJSON* item)
             break;
         case cJSON_True:
             newElement = new ElementBoolean();
+            break;
+        case cJSON_NULL:
+            newElement = new ElementNull();
             break;
         case cJSON_Object:
             newElement = new ElementObject();

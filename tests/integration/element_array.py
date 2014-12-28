@@ -19,6 +19,9 @@ t.chk(r'array.GetType() == ELEMENT_TYPE_ARRAY')
 # Arrays have no native type (no value storage)
 t.chk(r'array.GetNativeType() == NATIVE_TYPE_NONE')
 
+# Arrays are container types
+t.chk(r'array.IsContainer() == true')
+
 case('size',
      'Verifies that the Size() function works properly')
 

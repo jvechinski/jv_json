@@ -9,6 +9,7 @@ SOURCES=source/document.cpp \
         source/element_array.cpp \
         source/element_boolean.cpp \
         source/element_iterator.cpp \
+        source/element_null.cpp \
         source/element_object.cpp \
         source/exception.cpp \
         source/native_type.cpp 

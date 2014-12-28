@@ -48,8 +48,9 @@ namespace JVJSON_NAMESPACE_NAME
 class ElementBoolean : public Element
 {
 public:
-    virtual ElementType GetType(void) const;
+    virtual ElementType GetType(void) const;    
     virtual NativeType GetNativeType(void) const;
+    virtual bool_t IsValue(void) const;
     virtual bool_t GetValueAsBool(const bool_t allowConversion=false, bool_t* valid=nullptr);
     virtual uint8_t GetValueAsUint8(const bool_t allowConversion=false, bool_t* valid=nullptr);    
     virtual uint16_t GetValueAsUint16(const bool_t allowConversion=false, bool_t* valid=nullptr);

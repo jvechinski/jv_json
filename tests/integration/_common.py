@@ -28,6 +28,7 @@ def create_simple_json_file():
     f = file('simple.json', 'w')
     f.write(json.dumps({'type_bool_true': True,
                         'type_bool_false': False,
+                        'type_null': None,
                         'type_array': [1, 2.0, 'hello', True, False, {'deep_bool_true': True}],
                         'type_integer': 5, 
                         'type_float': 7.0}, sort_keys=True, indent=4))

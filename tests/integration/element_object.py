@@ -19,12 +19,15 @@ t.chk(r'object.GetType() == ELEMENT_TYPE_OBJECT')
 # Objects have no native type (no value storage)
 t.chk(r'object.GetNativeType() == NATIVE_TYPE_NONE')
 
+# Objects are container types
+t.chk(r'object.IsContainer() == true')
+
 case('size',
      'Verifies that the Size() function works properly')
 
 t.dec(r'Element& object = document.GetRootElement();')
 
-t.chk(r'object.GetSize() == 3')
+t.chk(r'object.GetSize() == 4')
 
 case('has_functions',
      'Verifies that the HasElement() functions work properly')
