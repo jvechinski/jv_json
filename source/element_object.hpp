@@ -49,10 +49,18 @@ namespace JVJSON_NAMESPACE_NAME
 /// document.
 class ElementObject : public Element
 {
+
+/// Allow the generic element iterator class to access private members.    
+friend class Element::Iterator;    
+    
 public:
     virtual ElementType GetType(void) const;
-    virtual Element& GetElement(const std::string& elementName, bool_t& exists);
     virtual void AddElement(const std::string& elementName, Element& element);    
+
+    virtual std::size_t GetSize(void) const;
+    
+protected:
+    virtual Element& GetElementPrivate(const std::string& elementName, bool_t* exists);
 
 private:
     JVJSON_OBJECT_TYPE map;

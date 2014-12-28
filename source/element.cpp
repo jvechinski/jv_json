@@ -3,6 +3,7 @@
 #include "exception.hpp"
 
 #include <cstring>
+#include <stdio.h>
 
 namespace JVJSON_NAMESPACE_NAME
 {
@@ -21,7 +22,7 @@ bool_t Element::HasElement(const std::string& elementName)
 {
     bool_t exists;
     
-    this->GetElement(elementName, exists);
+    this->GetElementPrivate(elementName, &exists);
     
     return exists;
 }
@@ -30,78 +31,98 @@ bool_t Element::HasElement(uint32_t elementIndex)
 {
     bool_t exists;
     
-    this->GetElement(elementIndex, exists);
+    this->GetElementPrivate(elementIndex, &exists);
     
     return exists;
 }
 
-Element& Element::GetElement(const char* elementName)
+Element& Element::GetElement(const char* elementName, bool_t* exists)
 {
-    return this->GetElement(std::string(elementName));
+    return this->GetElement(std::string(elementName), exists);
 }
     
-Element& Element::GetElement(const std::string& elementName)
+Element& Element::GetElement(const std::string& elementName, bool_t* exists)
 {
-    bool_t exists;
+    bool_t local_exists;
+        
+    Element& e = this->GetElementPrivate(elementName, &local_exists);
     
-    Element& e = this->GetElement(elementName, exists);
-    
-    if (!exists)
+    if (exists == nullptr)
     {
-        RaiseException(
-            std::runtime_error("Get element using name %s failed"));
+        if (!local_exists) 
+        {
+            RaiseException(
+                std::runtime_error("Get element from %s using name %s failed"));
+        }
+    }
+    else
+    {
+        *exists = local_exists;
     }
     
     return e;
 }
 
-Element& Element::GetElement(const uint32_t elementIndex)
+Element& Element::GetElement(const uint32_t elementIndex, bool_t* exists)
 {
-    bool_t exists;
+    bool_t local_exists;
     
-    Element& e = this->GetElement(elementIndex, exists);
+    Element& e = this->GetElementPrivate(elementIndex, &local_exists);
     
-    if (!exists)
+    if (exists == nullptr)
     {
-        RaiseException(
-            std::runtime_error("Get element using index %s failed"));
+        if (!local_exists) 
+        {
+            RaiseException(
+                std::runtime_error("Get element from %s using index %d failed"));
+        }
+    }
+    else
+    {
+        *exists = local_exists;
     }
     
     return e;
-}
-
-Element& Element::GetElement(const std::string& elementName, bool_t& exists)
-{
-    if ((this->schemaElement) && (elementName == std::string("schema")))
-    {
-        exists = true;
-        return *(this->schemaElement);
-    }
-    
-    exists = false;
-    return this->document->GetUndefinedElement();
-}
-
-Element& Element::GetElement(const uint32_t elementIndex, bool_t& exists)
-{
-    exists = false;
-    return this->document->GetUndefinedElement();
 }
 
 Element& Element::operator[](const char* elementName)
 {
-    return this->GetElement(elementName);
+    bool_t unused = false;
+    
+    return this->GetElementPrivate(elementName, &unused);
 }
 
 Element& Element::operator[](const std::string& elementName)
 {
-    return this->GetElement(elementName);
+    bool_t unused = false;
+    
+    return this->GetElementPrivate(elementName, &unused);
 }
 
-//const Element& Element::operator[](const std::string& elementName) const
-//{
-//    return const_cast<Element&>(this->GetElement(elementName));
-//}
+Element& Element::operator[](const uint32_t elementIndex)
+{
+    bool_t unused = false;
+    
+    return this->GetElementPrivate(elementIndex, &unused);    
+}
+
+Element& Element::GetElementPrivate(const std::string& elementName, bool_t* exists)
+{
+    if ((this->schemaElement) && (elementName == std::string("schema")))
+    {
+        *exists = true;
+        return *(this->schemaElement);
+    }
+
+    *exists = false;
+    return this->document->GetUndefinedElement();
+}
+
+Element& Element::GetElementPrivate(const uint32_t elementIndex, bool_t* exists)
+{
+    *exists = false;
+    return this->document->GetUndefinedElement();
+}
 
 void Element::AddElement(const std::string& elementName, Element& element)
 {
@@ -114,22 +135,28 @@ void Element::AddElement(const uint32_t elementIndex, Element& element)
     RaiseException(
         std::runtime_error("Cannot add child element by index to element"));    
 }
+
+void Element::AddElement(Element& element)
+{
+    element.document = this->document;
+    element.parent = this;
+}
  
-bool_t Element::GetValueAsBool(bool_t allowConversion, bool_t* valid)
+bool_t Element::GetValueAsBool(const bool_t allowConversion, bool_t* valid)
 {
     if (valid)
     {
         *valid = false;
     }
     return false;
-} 
+}
 
 Element::operator bool()
 {
     return this->GetValueAsBool();
 }
 
-uint8_t Element::GetValueAsUint8(bool_t allowConversion, bool_t* valid)
+uint8_t Element::GetValueAsUint8(const bool_t allowConversion, bool_t* valid)
 {
     if (valid)
     {
@@ -138,7 +165,7 @@ uint8_t Element::GetValueAsUint8(bool_t allowConversion, bool_t* valid)
     return 0U;
 }
 
-uint16_t Element::GetValueAsUint16(bool_t allowConversion, bool_t* valid)
+uint16_t Element::GetValueAsUint16(const bool_t allowConversion, bool_t* valid)
 {
     if (valid)
     {
@@ -147,23 +174,27 @@ uint16_t Element::GetValueAsUint16(bool_t allowConversion, bool_t* valid)
     return 0U;
 }
 
-uint32_t Element::GetValueAsUint32(bool_t allowConversion, bool_t* valid)
+uint32_t Element::GetValueAsUint32(const bool_t allowConversion, bool_t* valid)
 {
     if (valid)
     {
         *valid = false;
     }
     return 0U;
+}
+
+std::string Element::GetValueAsString(const bool_t allowConversion, bool_t* valid)
+{
+    if (valid)
+    {
+        *valid = false;
+    }
+    return std::string("");
 }
     
 uint32_t Element::GetValueAsBytes(uint8_t* buffer, uint32_t numberOfBytes)
 {
     return 0U;
-}
-
-uint32_t Element::GetCount(void)
-{
-    return 0;
 }
     
 bool_t Element::ValidateTypeAgainstSchema(void)
@@ -183,5 +214,15 @@ void Element::SetValueWithBool(bool_t valueVariable, bool_t allowConversion, boo
         *valid = false;
     }
 }    
+
+std::size_t Element::GetSize(void) const
+{
+    return 0;
+}
+
+void Element::GetValue(std::string& valueVariable, const bool_t allowConversion)
+{
+    this->GetValueAsString(allowConversion);
+}
 
 };

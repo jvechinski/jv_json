@@ -55,20 +55,6 @@ class Document
 {
 
 public:
-    class Iterator: public std::iterator<std::forward_iterator_tag, Element>
-    {
-        public:
-            Iterator(Element* initialElement);
-            Iterator& Next(void);
-            bool_t operator==(const Iterator& other);
-            bool_t operator!=(const Iterator& other);
-            Iterator& operator++(void);
-            Iterator operator++(int postfix);
-        
-        private:
-            Element* element;
-            std::deque<Element::Iterator> containerIterators;
-    };
 
     char* GetFilename(void);
     void SetFilename(const char* filename);
@@ -90,6 +76,21 @@ public:
     bool_t WriteToFile(const char* filename=NULL, const char* schemaFilename=NULL);
     
     uint8_t* GetValueTablePointer(void);
+
+    class Iterator: public std::iterator<std::forward_iterator_tag, Element>
+    {
+        public:
+            Iterator(Document* document, Element* initialElement);
+            virtual Iterator& Next(void);
+            bool_t operator==(const Iterator& other);
+            bool_t operator!=(const Iterator& other);
+            Iterator& operator++(void);
+            Iterator operator++(int postfix);
+        private:
+            Document* document;
+            Element* element;
+            std::deque<Element::Iterator> containerIterators;
+    };
     
     Iterator Begin(void);
     Iterator End(void);

@@ -1,8 +1,8 @@
 //////////////////////////////////////////////////////////////////////
 /// @file
 ///
-/// Header file for JSON Element Boolean class.  Represents a JSON
-/// boolean value (true, false).  
+/// Header file for JSON Element Array class.  Represents a JSON
+/// Array (vector, list).  
 ///
 /// Part of the JV JSON parser project, 
 /// https://github.com/jvechinski/jv_json
@@ -33,28 +33,39 @@
 /// SOFTWARE.
 //////////////////////////////////////////////////////////////////////
 
-#if !defined(JVJSON_ELEMENT_BOOLEAN_HPP)
-#define JVJSON_ELEMENT_BOOLEAN_HPP
+#if !defined(JVJSON_ELEMENT_ARRAY_HPP)
+#define JVJSON_ELEMENT_ARRAY_HPP
 
 #include "global.hpp"
 #include "types.hpp"
 #include "element.hpp"
 
+#include <string>
+
 namespace JVJSON_NAMESPACE_NAME
 {
     
-/// This class represents a boolean value (true, false) in a JSON 
+/// This class represents an object (mapping, dictionary) in a JSON 
 /// document.
-class ElementBoolean : public Element
+class ElementArray : public Element
 {
+
+/// Allow the generic element iterator class to access private members.    
+friend class Element::Iterator;    
+    
 public:
     virtual ElementType GetType(void) const;
-    virtual NativeType GetNativeType(void) const;
-    virtual bool_t GetValueAsBool(const bool_t allowConversion=false, bool_t* valid=nullptr);
-    virtual uint8_t GetValueAsUint8(const bool_t allowConversion=false, bool_t* valid=nullptr);    
-    virtual uint16_t GetValueAsUint16(const bool_t allowConversion=false, bool_t* valid=nullptr);
-    virtual uint32_t GetValueAsUint32(const bool_t allowConversion=false, bool_t* valid=nullptr);    
-    virtual std::string GetValueAsString(const bool_t allowConversion=false, bool_t* valid=nullptr);
+    virtual void AddElement(const uint32_t elementIndex, Element& element);
+
+    virtual std::size_t GetSize(void) const;
+    
+protected:
+    virtual Element& GetElementPrivate(const std::string& elementName, bool_t* exists);
+    virtual Element& GetElementPrivate(const uint32_t elementIndex, bool_t* exists);
+
+private:
+    JVJSON_ARRAY_TYPE array;
+
 };
 
 };

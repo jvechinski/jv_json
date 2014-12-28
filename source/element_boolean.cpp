@@ -51,5 +51,27 @@ uint32_t ElementBoolean::GetValueAsUint32(bool_t allowConversion, bool_t* valid)
 {
     return (uint32_t)this->GetValueAsUint8();
 }
+
+std::string ElementBoolean::GetValueAsString(bool_t allowConversion, bool_t* valid)
+{
+    if (allowConversion)
+    {
+        if (valid)
+        {
+            *valid = true;
+        }
+        
+        if (this->GetValueAsBool())
+        {
+            return std::string("true");
+        }
+        else
+        {
+            return std::string("false");
+        }
+    }
+    
+    return Element::GetValueAsString(allowConversion, valid);    
+}
     
 };

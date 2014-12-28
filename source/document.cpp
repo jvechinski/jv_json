@@ -1,9 +1,12 @@
 #include <cassert>
 #include <fstream>
 
+#include <stdio.h>
+
 #include "document.hpp"
-#include "element_object.hpp"
+#include "element_array.hpp"
 #include "element_boolean.hpp"
+#include "element_object.hpp"
 #include "cJSON/cJSON.h"
 
 namespace JVJSON_NAMESPACE_NAME
@@ -66,27 +69,45 @@ bool_t Document::ReadFromFile(const char* filename, const char* schemaFilename)
 
 Document::Iterator Document::Begin(void)
 {   
-    return Document::Iterator(&this->GetRootElement());
+    return Document::Iterator(this, &this->GetRootElement());
 }
 
 Document::Iterator Document::End(void)
 {   
-    return Document::Iterator(&this->GetUndefinedElement());
+    return Document::Iterator(this, &this->GetUndefinedElement());
 }
 
 Element* Document::RecursiveParseCjsonItems(cJSON* item)
 {
+    //printf("RecursiveParseCjsonItems, type %d\n", item->type);
+    
     // Turn the cJSON item into an Element object.
     Element* newElement = ConstructElementFromCjsonItem(item);
     
     // Assert that the parsing was successful.
-    assert(newElement != nullptr);
+    //assert(newElement != nullptr);
+    if (newElement == nullptr)
+    {
+        return newElement;
+    }
     
     // Special case... for arrays and objects we need to parse the
     // children.
     if (newElement->GetType() == ELEMENT_TYPE_ARRAY)
     {
-        
+        // Loop through the children.
+        cJSON* childItem = item->child;
+        std::size_t index = 0;
+        while (childItem)
+        {
+            Element* childElement = RecursiveParseCjsonItems(childItem);
+            if (childElement)
+            {
+                newElement->AddElement(index, *childElement);
+            }
+            childItem = childItem->next;
+            index += 1;
+        }        
     }
     else if (newElement->GetType() == ELEMENT_TYPE_OBJECT)
     {
@@ -94,7 +115,7 @@ Element* Document::RecursiveParseCjsonItems(cJSON* item)
         cJSON* childItem = item->child;
         while (childItem)
         {
-            Element* childElement = ConstructElementFromCjsonItem(childItem);
+            Element* childElement = RecursiveParseCjsonItems(childItem);
             if (childElement)
             {
                 newElement->AddElement(childItem->string, *childElement);
@@ -121,6 +142,9 @@ Element* Document::ConstructElementFromCjsonItem(cJSON* item)
         case cJSON_Object:
             newElement = new ElementObject();
             break;
+        case cJSON_Array:
+            newElement = new ElementArray();
+            break;
     }
     
     if (newElement != nullptr)
@@ -136,20 +160,42 @@ void Document::AllocateValueTable(void)
     return;
 }
 
-Document::Iterator::Iterator(Element* initialElement)
+Document::Iterator::Iterator(Document* document, Element* initialElement)
 {
+    this->document = document;
     this->element = initialElement;
     this->containerIterators = std::deque<Element::Iterator>();
 }
 
 Document::Iterator& Document::Iterator::Next(void)
 {
-    if (
-        (this->element->GetType() == ELEMENT_TYPE_ARRAY) ||
-        (this->element->GetType() == ELEMENT_TYPE_OBJECT)
-       )
+    if (this->element->GetSize())
     {
-        
+        Element::Iterator iterator = this->element->Begin();
+        this->containerIterators.push_front(iterator);
+        this->element = &iterator.GetElement();
+    }
+    else
+    {
+        while (this->containerIterators.size())
+        {
+            Element::Iterator iterator = this->containerIterators[0]++;
+            if (iterator == this->containerIterators[0].End())
+            {
+                this->containerIterators.pop_front();
+            }
+            else
+            {
+                this->element = &iterator.GetElement();
+                break;
+            }
+        }
+    }
+    
+    // If we get here, we hit the end...
+    if (!this->containerIterators.size())
+    {
+        this->element = &this->document->GetUndefinedElement();
     }
     
     return *this;

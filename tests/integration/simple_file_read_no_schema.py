@@ -1,30 +1,15 @@
 from testgen.cpp.unittest import Target, case, run
 
+import _common
+
 t = Target('simple_file_read_no_schema')                               
 
-import json
-f = file('simple.json', 'w')
-f.write(json.dumps({'type_bool_true': True,
-                    'type_bool_false': False,
-                    'type_integer': 5, 
-                    'type_float': 7.0}, sort_keys=True, indent=4))
-f.close()
+t.globalcode(_common.global_code())
 
-t.globalcode('''
-#include "document.hpp"
+_common.read_document_case(t)
 
-using namespace JVJSON_NAMESPACE_NAME;
-''')
-
-case('simple_file_read',
-     'Tests reading a simple JSON file that contains all '
-     'JSON element types.  No schema is used.')
-
-t.dec('Document document;')
-t.dec('bool_t result=false;')
-
-t.exe(r'result = document.ReadFromFile("..\\..\\simple.json");')
-t.chk('result==true')
+case('check_document_contents',
+     'Verifies that the document contains all the expected Elements')
 
 t.exe(r'Element& root = document.GetRootElement();')
 

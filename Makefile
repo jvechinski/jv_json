@@ -6,7 +6,9 @@ ARFLAGS=rcs
 OUTPUT_DIR=obj
 SOURCES=source/document.cpp \
         source/element.cpp  \
+        source/element_array.cpp \
         source/element_boolean.cpp \
+        source/element_iterator.cpp \
         source/element_object.cpp \
         source/exception.cpp \
         source/native_type.cpp 
