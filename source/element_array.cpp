@@ -74,6 +74,10 @@ Element& ElementArray::GetElementPrivate(const uint32_t elementIndex, bool_t* ex
 
 void ElementArray::AddElement(const uint32_t elementIndex, Element& element)
 {
+    // Call the parent class AddElement() function, which performs
+    // common add behavior.
+    Element::AddElement(element);
+    
     // If the size is too small, we insert with undefined elements.
     if (elementIndex >= this->GetSize())
     {

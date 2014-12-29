@@ -40,6 +40,10 @@ Element& ElementObject::GetElementPrivate(const std::string& elementName, bool_t
 
 void ElementObject::AddElement(const std::string& elementName, Element& element)
 {
+    // Call the parent class AddElement() function, which performs
+    // common add behavior.
+    Element::AddElement(element);
+    
     this->map[elementName] = &element;
 }
 

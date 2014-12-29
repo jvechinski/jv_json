@@ -2,9 +2,9 @@ from testgen.cpp.unittest import Target, case, run
 
 import _common
 
-t = Target('element_object_iterator')                               
+t = Target('element_iterator')                               
 
-t.globalcode(_common.global_code())
+t.globalcode('#include <assert.h>\n' + _common.global_code())
 
 _common.read_document_case(t)
 
@@ -27,8 +27,9 @@ for (Element::Iterator i = root.Begin();
     count += 1;
     printf("%s=%s\n", i.GetName().c_str(), 
         i.GetElement().GetValueAsString(true).c_str());
-    printf("%s=%s\n", i.GetName().c_str(), 
+    printf("%s=%s\n", (*i).GetAddress(true).c_str(), 
         (*i).GetValueAsString(true).c_str());
+    assert(&root == &(i.GetParentElement()));
 }
 ''')
 
@@ -53,6 +54,7 @@ for (Element::Iterator i = array.Begin();
         i.GetElement().GetValueAsString(true).c_str());
     printf("%d=%s\n", i.GetIndex(), 
         (*i).GetValueAsString(true).c_str());
+    assert(&array == &(i.GetParentElement()));
 }
 ''')
 

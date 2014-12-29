@@ -111,9 +111,9 @@ public:
 
     virtual void SetValueWithBool(bool_t valueVariable, bool_t allowConversion=false, bool_t* valid=nullptr);
     
-    std::string GetElementName(void);
-    std::size_t GetElementIndex(void);
-    std::string GetElementAddress(bool_t documentPath=false, bool_t append=false);    
+    std::string GetName(void);
+    std::size_t GetIndex(void);
+    std::string GetAddress(bool_t documentPath=false, bool_t recursiveCall=false);    
 
     class Iterator : public std::iterator<std::forward_iterator_tag, Element>
     {
@@ -121,6 +121,7 @@ public:
             Iterator(void);
             Iterator(Element* parentElement, bool_t begin=false);
             Element& GetElement(void);
+            Element& GetParentElement(void);
             std::string GetName(void);
             uint32_t GetIndex(void);
             Iterator Begin(void);
@@ -156,7 +157,7 @@ private:
     /// Pointer to the parent element.  If this Element is in another
     /// Element (i.e. Object or Array), this will point to the 
     /// container Element.  
-    Element* parent;
+    Element* parentElement;
     
     /// Pointer to the Element in the schema that describes the 
     /// properties of this Element.  Note that by definition, the

@@ -12,6 +12,13 @@
 
 namespace JVJSON_NAMESPACE_NAME
 {
+    
+Element undefinedElement;
+
+std::string Document::GetFilename(void)
+{
+    return this->filename;
+}
 
 Element& Document::GetRootElement(void)
 {
@@ -27,12 +34,14 @@ Element& Document::GetRootElement(void)
 
 Element& Document::GetUndefinedElement(void)
 {
-    return this->undefinedElement;
+    return undefinedElement;
 }
 
 bool_t Document::ReadFromFile(const char* filename, const char* schemaFilename)
 {
     printf("Parsing file %s\n", filename);
+    
+    this->filename = std::string(filename);
     
     std::ifstream infile;
     infile.open(filename);
@@ -67,16 +76,6 @@ bool_t Document::ReadFromFile(const char* filename, const char* schemaFilename)
     
     return true;
 }   
-
-Document::Iterator Document::Begin(void)
-{   
-    return Document::Iterator(this, &this->GetRootElement());
-}
-
-Document::Iterator Document::End(void)
-{   
-    return Document::Iterator(this, &this->GetUndefinedElement());
-}
 
 Element* Document::RecursiveParseCjsonItems(cJSON* item)
 {
@@ -162,57 +161,6 @@ Element* Document::ConstructElementFromCjsonItem(cJSON* item)
 void Document::AllocateValueTable(void)
 {
     return;
-}
-
-Document::Iterator::Iterator(Document* document, Element* initialElement)
-{
-    this->document = document;
-    this->element = initialElement;
-    this->containerIterators = std::deque<Element::Iterator>();
-}
-
-Document::Iterator& Document::Iterator::Next(void)
-{
-    if (this->element->GetSize())
-    {
-        Element::Iterator iterator = this->element->Begin();
-        this->containerIterators.push_front(iterator);
-        this->element = &iterator.GetElement();
-    }
-    else
-    {
-        while (this->containerIterators.size())
-        {
-            Element::Iterator iterator = this->containerIterators[0]++;
-            if (iterator == this->containerIterators[0].End())
-            {
-                this->containerIterators.pop_front();
-            }
-            else
-            {
-                this->element = &iterator.GetElement();
-                break;
-            }
-        }
-    }
-    
-    // If we get here, we hit the end...
-    if (!this->containerIterators.size())
-    {
-        this->element = &this->document->GetUndefinedElement();
-    }
-    
-    return *this;
-}
-
-bool_t Document::Iterator::operator==(const Iterator& other)
-{
-    return (this->element == other.element);
-}
-
-bool_t Document::Iterator::operator!=(const Iterator& other)
-{
-    return (this->element != other.element);
 }
     
 }

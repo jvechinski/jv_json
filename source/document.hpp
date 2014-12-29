@@ -36,6 +36,7 @@
 #define JVJSON_DOCUMENT_HPP
 
 #include <deque>
+#include <string>
 
 #include "global.hpp"
 #include "types.hpp"
@@ -56,8 +57,8 @@ class Document
 
 public:
 
-    char* GetFilename(void);
-    void SetFilename(const char* filename);
+    std::string GetFilename(void);
+    void SetFilename(const std::string& filename);
 
     char* GetSchemaFilename(void);
     void SetSchemaFilename(const char* filename);
@@ -79,20 +80,34 @@ public:
 
     class Iterator: public std::iterator<std::forward_iterator_tag, Element>
     {
+        enum ElementIteratorState
+        {
+            DOCUMENT_ROOT,
+            PARENT_BEGIN,
+            ELEMENT,
+            PARENT_END
+        };
+        
         public:
-            Iterator(Document* document, Element* initialElement);
-            virtual Iterator& Next(void);
+            Iterator(void);
+            Iterator(Document* document, bool_t includeParentEndState=false, bool_t begin=false);
+            Element& GetElement(void);
+            std::size_t GetDepth(void);
+            bool_t IsParentEndState(void);
+            Iterator Begin(void);
+            Iterator End(void);
             bool_t operator==(const Iterator& other);
             bool_t operator!=(const Iterator& other);
-            Iterator& operator++(void);
             Iterator operator++(int postfix);
-        private:
+            Element& operator*(void);
+
+        private:        
             Document* document;
-            Element* element;
-            std::deque<Element::Iterator> containerIterators;
+            bool_t includeParentEndState;
+            std::deque< std::pair<ElementIteratorState,Element::Iterator> > elementIterators;
     };
     
-    Iterator Begin(void);
+    Iterator Begin(bool_t includeParentEndState=false);
     Iterator End(void);
             
 private:
@@ -110,10 +125,11 @@ private:
 
     std::string filename;
     std::string schemaFilename;
-    Element* rootElement;
-    Element undefinedElement;
+    Element* rootElement;    
     uint8_t* valueTable;    
 };
+
+extern Element undefinedElement;
 
 }
 

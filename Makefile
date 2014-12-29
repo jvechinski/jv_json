@@ -5,6 +5,7 @@ AR=ar
 ARFLAGS=rcs
 OUTPUT_DIR=obj
 SOURCES=source/document.cpp \
+		source/document_iterator.cpp \
         source/element.cpp  \
         source/element_array.cpp \
         source/element_boolean.cpp \

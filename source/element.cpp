@@ -139,7 +139,7 @@ void Element::AddElement(const uint32_t elementIndex, Element& element)
 void Element::AddElement(Element& element)
 {
     element.document = this->document;
-    element.parent = this;
+    element.parentElement = this;
 }
  
 bool_t Element::IsNull(void) const
@@ -242,7 +242,74 @@ std::size_t Element::GetSize(void) const
 
 void Element::GetValue(std::string& valueVariable, const bool_t allowConversion)
 {
-    this->GetValueAsString(allowConversion);
+    valueVariable = this->GetValueAsString(allowConversion);
+}
+
+std::string Element::GetName(void)
+{
+    if (!this->parentElement)
+    {
+        RaiseException(
+            std::runtime_error("Element has no name"));        
+    }
+    else
+    {
+        Element::Iterator i = this->parentElement->Find(*this);
+        if (i == this->parentElement->End())
+        {
+            RaiseException(
+                std::runtime_error("Cannot find element in parent"));                    
+        }
+        return i.GetName();
+    }
+    
+    return std::string("");
+}
+    
+std::size_t Element::GetIndex(void)
+{
+    if (!this->parentElement)
+    {
+        RaiseException(
+            std::runtime_error("Element has no index"));        
+    }
+    else
+    {
+        Element::Iterator i = this->parentElement->Find(*this);
+        if (i == this->parentElement->End())
+        {
+            RaiseException(
+                std::runtime_error("Cannot find element in parent"));                    
+        }
+        return i.GetIndex();
+    }
+    
+    return 0U;
+}
+
+std::string Element::GetAddress(bool_t documentPath, bool_t recursiveCall)
+{
+    if (this->parentElement)
+    {
+        std::string address = this->parentElement->GetAddress(documentPath, true);
+        address.append("/");
+        address.append(this->GetName());
+        return address;
+    }
+    else
+    {
+        std::string address;
+        if ((documentPath) && (this->document))
+        {
+            address.append(this->document->GetFilename());
+        }
+        address.append("#");
+        if (!recursiveCall)
+        {
+            address.append("/");
+        }
+        return address;
+    }
 }
 
 };

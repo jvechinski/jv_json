@@ -24,7 +24,7 @@ Element::Iterator Element::Find(Element& elementToFind)
     
     for (i = this->Begin(); i != this->End(); i++)
     {
-        if (*i == elementToFind)
+        if (&(*i) == &elementToFind)
         {
             break;
         }
@@ -89,13 +89,25 @@ Element& Element::Iterator::GetElement(void)
     return *this->parentElement;
 }
 
+Element& Element::Iterator::GetParentElement(void)
+{
+    return *this->parentElement;
+}
+
 std::string Element::Iterator::GetName(void)
 {
     if (this->parentElement->GetType() == ELEMENT_TYPE_OBJECT)
     {
         return this->objectIterator->first;
     }    
-    
+    else if (this->parentElement->GetType() == ELEMENT_TYPE_ARRAY)
+    {
+        std::size_t index = this->GetIndex();
+        char s[10];
+        sprintf(s, "%d", index);
+        return std::string(s);
+    }
+        
     RaiseException(
         std::runtime_error("String names not present in JSON objects of type %s"));
     
