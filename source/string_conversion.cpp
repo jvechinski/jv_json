@@ -1,8 +1,7 @@
 //////////////////////////////////////////////////////////////////////
 /// @file
 ///
-/// Header file for JSON Element Boolean class.  Represents a JSON
-/// boolean value (true, false).  
+/// Definition for string conversion functions.
 ///
 /// Part of the JV JSON parser project, 
 /// https://github.com/jvechinski/jv_json
@@ -33,41 +32,78 @@
 /// SOFTWARE.
 //////////////////////////////////////////////////////////////////////
 
-#if !defined(JVJSON_ELEMENT_BOOLEAN_HPP)
-#define JVJSON_ELEMENT_BOOLEAN_HPP
-
 #include "global.hpp"
+#include "string_conversion.hpp"
 #include "types.hpp"
-#include "element.hpp"
+
+#include <cstdio>
+#include <cstring>
 
 namespace JVJSON_NAMESPACE_NAME
 {
     
-/// This class represents a boolean value (true, false) in a JSON 
-/// document.
-class ElementBoolean : public Element
+const size_t MAX_STRING_SIZE = 24;
+
+std::string ToString(int val)
 {
-public:
-    ElementBoolean(bool_t value);
+    char tempString[MAX_STRING_SIZE];
+    sprintf(tempString, "%d", val);
+    return std::string(tempString);
+}
 
-    virtual ElementType GetType(void) const;    
-    virtual NativeType GetNativeType(void) const;
-    virtual bool_t IsValue(void) const;
-    virtual bool_t GetValueAsBool(const bool_t allowConversion=false, bool_t* valid=nullptr);
-    virtual uint8_t GetValueAsUint8(const bool_t allowConversion=false, bool_t* valid=nullptr);    
-    virtual uint16_t GetValueAsUint16(const bool_t allowConversion=false, bool_t* valid=nullptr);
-    virtual uint32_t GetValueAsUint32(const bool_t allowConversion=false, bool_t* valid=nullptr);    
-    virtual std::string GetValueAsString(const bool_t allowConversion=false, bool_t* valid=nullptr);
-    
-private:
-    bool_t hasInternalValue;
-    union
+std::string ToString(long val)
+{
+    char tempString[MAX_STRING_SIZE];
+    sprintf(tempString, "%ld", val);
+    return std::string(tempString);
+}
+
+std::string ToString(long long val)
+{
+    char tempString[MAX_STRING_SIZE];
+    /// @todo Fix
+    // C++98 does not support %lld?    
+    sprintf(tempString, "%ld", (long)val);
+    return std::string(tempString);
+}
+
+std::string ToString(unsigned val)
+{
+    char tempString[MAX_STRING_SIZE];
+    sprintf(tempString, "%u", val);
+    return std::string(tempString);
+}
+
+std::string ToString(unsigned long val)
+{
+    char tempString[MAX_STRING_SIZE];
+    sprintf(tempString, "%lu", val);
+    return std::string(tempString);
+}
+
+std::string ToString(unsigned long long val)
+{
+    char tempString[MAX_STRING_SIZE];
+    /// @todo Fix
+    // C++98 does not support %llu?
+    sprintf(tempString, "%lu", (unsigned long)val);
+    return std::string(tempString);
+}
+
+std::string ToString(float val)
+{
+    return ToString((double)val);
+}
+
+std::string ToString(double val)
+{
+    char tempString[MAX_STRING_SIZE];
+    sprintf(tempString, "%g", val);
+    if (strpbrk("eE.", tempString) == nullptr)
     {
-        bool_t internalValue;
-        size_t valueIndex;
-    } value;
-};
+        strcat(tempString, ".0");
+    }    
+    return std::string(tempString);
+}
 
 };
-
-#endif

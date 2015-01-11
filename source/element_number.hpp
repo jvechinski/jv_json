@@ -1,8 +1,10 @@
 //////////////////////////////////////////////////////////////////////
 /// @file
 ///
-/// Header file for JSON Element Boolean class.  Represents a JSON
-/// boolean value (true, false).  
+/// Header file for JSON Element Number class.  Represents a JSON
+/// number / numeric value (integer OR floating point).
+///
+/// @note This is a pure virtual class that cannot be instantiated.
 ///
 /// Part of the JV JSON parser project, 
 /// https://github.com/jvechinski/jv_json
@@ -10,7 +12,7 @@
 ///
 /// @ingroup jv_json
 ///
-/// Copyright (c) 2014 Jeremy S. Vechinski
+/// Copyright (c) 2015 Jeremy S. Vechinski
 ///
 /// Permission is hereby granted, free of charge, to any person 
 /// obtaining a copy of this software and associated documentation 
@@ -33,8 +35,8 @@
 /// SOFTWARE.
 //////////////////////////////////////////////////////////////////////
 
-#if !defined(JVJSON_ELEMENT_BOOLEAN_HPP)
-#define JVJSON_ELEMENT_BOOLEAN_HPP
+#if !defined(JVJSON_ELEMENT_NUMBER_HPP)
+#define JVJSON_ELEMENT_NUMBER_HPP
 
 #include "global.hpp"
 #include "types.hpp"
@@ -43,29 +45,16 @@
 namespace JVJSON_NAMESPACE_NAME
 {
     
-/// This class represents a boolean value (true, false) in a JSON 
-/// document.
-class ElementBoolean : public Element
+/// This class represents a numeric value (floating point OR integer) 
+/// in a JSON document.
+class ElementNumber : public Element
 {
 public:
-    ElementBoolean(bool_t value);
-
-    virtual ElementType GetType(void) const;    
-    virtual NativeType GetNativeType(void) const;
-    virtual bool_t IsValue(void) const;
-    virtual bool_t GetValueAsBool(const bool_t allowConversion=false, bool_t* valid=nullptr);
-    virtual uint8_t GetValueAsUint8(const bool_t allowConversion=false, bool_t* valid=nullptr);    
-    virtual uint16_t GetValueAsUint16(const bool_t allowConversion=false, bool_t* valid=nullptr);
-    virtual uint32_t GetValueAsUint32(const bool_t allowConversion=false, bool_t* valid=nullptr);    
-    virtual std::string GetValueAsString(const bool_t allowConversion=false, bool_t* valid=nullptr);
+    virtual ElementType GetType(void) const = 0;
     
-private:
-    bool_t hasInternalValue;
-    union
-    {
-        bool_t internalValue;
-        size_t valueIndex;
-    } value;
+    virtual bool_t IsValue(void) const;
+    virtual bool_t IsNumber(void) const;
+    
 };
 
 };

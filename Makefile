@@ -9,10 +9,14 @@ SOURCES=source/document.cpp \
         source/element.cpp  \
         source/element_array.cpp \
         source/element_boolean.cpp \
+        source/element_float.cpp \
+        source/element_integer.cpp \
         source/element_iterator.cpp \
+        source/element_number.cpp \
         source/element_null.cpp \
         source/element_object.cpp \
         source/exception.cpp \
+        source/string_conversion.cpp \
         source/native_type.cpp 
 OBJECTS=$(SOURCES:.cpp=.o) source/cJSON.o
 #_OBJECTS=$(SOURCES:.cpp=.o) source/cJSON.o

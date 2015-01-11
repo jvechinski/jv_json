@@ -18,6 +18,7 @@ t.chk(r'root.GetType() == ELEMENT_TYPE_OBJECT')
 t.chk(r'root.IsContainer() == true')
 
 # Verify boolean values are present and have the right values.
+# true
 t.chk(r'root.HasElement("type_bool_true") == true')
 t.exe(r'Element& trueElement = root.GetElement("type_bool_true");')
 t.chk(r'trueElement.GetType() == ELEMENT_TYPE_BOOLEAN')
@@ -25,14 +26,37 @@ t.chk(r'trueElement.GetValueAsBool() == true')
 t.chk(r'trueElement.IsValue() == true')
 t.exe(r'bool_t booleanValue = trueElement;')
 t.chk(r'booleanValue == true')
-
+# false
 t.chk(r'root.HasElement("type_bool_false") == true')
 t.chk(r'root.GetElement("type_bool_false").GetType() == ELEMENT_TYPE_BOOLEAN')
-#t.chk(r'root.GetElement("type_bool_false").GetValueAsBool() == false')
+t.chk(r'root.GetElement("type_bool_false").GetValueAsBool() == false')
 t.chk(r'root["type_bool_false"].GetType() == ELEMENT_TYPE_BOOLEAN')
 
+# Check for the null element.
 t.chk(r'root.HasElement("type_null") == true')
 t.chk(r'root.GetElement("type_null").GetType() == ELEMENT_TYPE_NULL')
 t.chk(r'root.GetElement("type_null").IsNull() == true')
+t.chk(r'root.GetElement("type_null").IsValue() == false')
+
+# Verify integer value is present.
+t.chk(r'root.HasElement("type_integer") == true')
+t.exe(r'Element& integerElement = root.GetElement("type_integer");')
+t.chk(r'integerElement.GetType() == ELEMENT_TYPE_INTEGER')
+t.chk(r'integerElement.GetValueAsUint32() == 5U')
+t.chk(r'integerElement.IsValue() == true')
+t.chk(r'integerElement.IsNumber() == true')
+
+# Verify floating point values are present and have the right values.
+# decimal point
+t.chk(r'root.HasElement("type_float") == true')
+t.exe(r'Element& floatElement = root.GetElement("type_float");')
+t.chk(r'floatElement.GetType() == ELEMENT_TYPE_FLOAT')
+t.chk(r'floatElement.GetValueAsFloat64() > -3.15')
+t.chk(r'floatElement.GetValueAsFloat64() < -3.13')
+t.chk(r'floatElement.IsValue() == true')
+t.chk(r'integerElement.IsNumber() == true')
+# exponent
+t.chk(r'root.HasElement("type_float_exponent") == true')
+t.chk(r'root.GetElement("type_float_exponent").GetType() == ELEMENT_TYPE_FLOAT')
 
 run()

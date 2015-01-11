@@ -27,7 +27,7 @@ case('size',
 
 t.dec(r'Element& object = document.GetRootElement();')
 
-t.chk(r'object.GetSize() == 4')
+t.chk(r'object.GetSize() == 7')
 
 case('has_functions',
      'Verifies that the HasElement() functions work properly')
@@ -52,7 +52,7 @@ t.dec(r'Element& object = document.GetRootElement();')
 
 # Element name in object
 t.chk(r'object.GetElement("type_bool_true").GetValueAsBool() == true')
-t.chk(r'object.GetElement(std::string("type_bool_false"), &exists).GetValueAsBool() == true')
+t.chk(r'object.GetElement(std::string("type_bool_false"), &exists).GetValueAsBool() == false')
 t.chk(r'exists==true')
 # Element name not in object
 t.exe(r'try { object.GetElement("doesnt_exist"); } catch (const std::runtime_error& e) { exception = true; }')

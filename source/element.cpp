@@ -203,6 +203,69 @@ uint32_t Element::GetValueAsUint32(const bool_t allowConversion, bool_t* valid)
     return 0U;
 }
 
+uint64_t Element::GetValueAsUint64(const bool_t allowConversion, bool_t* valid)
+{
+    if (valid)
+    {
+        *valid = false;
+    }
+    return 0U;
+}
+
+int8_t Element::GetValueAsInt8(const bool_t allowConversion, bool_t* valid)
+{
+    if (valid)
+    {
+        *valid = false;
+    }
+    return 0;
+}
+
+int16_t Element::GetValueAsInt16(const bool_t allowConversion, bool_t* valid)
+{
+    if (valid)
+    {
+        *valid = false;
+    }
+    return 0;
+}
+
+int32_t Element::GetValueAsInt32(const bool_t allowConversion, bool_t* valid)
+{
+    if (valid)
+    {
+        *valid = false;
+    }
+    return 0;
+}
+
+int64_t Element::GetValueAsInt64(const bool_t allowConversion, bool_t* valid)
+{
+    if (valid)
+    {
+        *valid = false;
+    }
+    return 0;
+}
+
+float32_t Element::GetValueAsFloat32(const bool_t allowConversion, bool_t* valid)
+{
+    if (valid)
+    {
+        *valid = false;
+    }
+    return 0.0;
+}
+
+float64_t Element::GetValueAsFloat64(const bool_t allowConversion, bool_t* valid)
+{
+    if (valid)
+    {
+        *valid = false;
+    }
+    return 0.0;
+}
+
 std::string Element::GetValueAsString(const bool_t allowConversion, bool_t* valid)
 {
     if (valid)

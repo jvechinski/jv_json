@@ -45,6 +45,12 @@ typedef char char_t;
 
 typedef float float32_t;
 typedef double float64_t;
+#if defined(JVJSON_SUPPORT_LONG_DOUBLE_FLOAT)
+typedef long double float128_t;
+typedef float128_t floatmax_t;
+#else
+typedef float64_t floatmax_t;
+#endif
 
 // Define a "nullptr" identifier for pre-C++11 compilations.
 #if __cplusplus <= 199711L

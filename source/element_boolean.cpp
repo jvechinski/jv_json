@@ -5,6 +5,12 @@
 namespace JVJSON_NAMESPACE_NAME
 {
     
+ElementBoolean::ElementBoolean(bool_t value)
+{
+    this->hasInternalValue = true;
+    this->value.internalValue = value;
+}
+    
 ElementType ElementBoolean::GetType(void) const
 {
     return ELEMENT_TYPE_BOOLEAN;
@@ -22,6 +28,10 @@ bool_t ElementBoolean::IsValue(void) const
     
 bool_t ElementBoolean::GetValueAsBool(bool_t allowConversion, bool_t* valid)
 {
+    if (this->hasInternalValue)
+    {
+        return this->value.internalValue;
+    }
     return true;
 }
     

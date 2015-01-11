@@ -18,7 +18,7 @@ t.chk(r'root.GetType() == ELEMENT_TYPE_OBJECT')
 
 # Iterate through all child elements in the root element.
 t.dec('uint32_t count;')
-t.out('count', 0, 4)
+t.out('count', 0, 7)
 t.exe(r'''
 for (Element::Iterator i = root.Begin();
      i != root.End();

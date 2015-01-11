@@ -13,7 +13,7 @@ case('document_iterator',
 
 # Iterate through all child elements in the root element.
 t.dec('uint32_t count;')
-t.out('count', 0, 12)
+t.out('count', 0, 15)
 t.exe(r'''
 for (Document::Iterator i = document.Begin();
      i != document.End();
@@ -28,11 +28,11 @@ for (Document::Iterator i = document.Begin();
 
 case('document_iterator',
      'Tests iterating through items in a JSON document, using the '
-    'include parent end state.')
+     'include parent end state.')
 
 # Iterate through all child elements in the root element.
 t.dec('uint32_t count;')
-t.out('count', 0, 15)
+t.out('count', 0, 18)
 t.exe(r'''
 for (Document::Iterator i = document.Begin(true);
      i != document.End();

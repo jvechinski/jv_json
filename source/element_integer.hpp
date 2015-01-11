@@ -1,8 +1,8 @@
 //////////////////////////////////////////////////////////////////////
 /// @file
 ///
-/// Header file for JSON Element Boolean class.  Represents a JSON
-/// boolean value (true, false).  
+/// Header file for JSON Element Integer class.  Represents a JSON
+/// integer value.  
 ///
 /// Part of the JV JSON parser project, 
 /// https://github.com/jvechinski/jv_json
@@ -10,7 +10,7 @@
 ///
 /// @ingroup jv_json
 ///
-/// Copyright (c) 2014 Jeremy S. Vechinski
+/// Copyright (c) 2015 Jeremy S. Vechinski
 ///
 /// Permission is hereby granted, free of charge, to any person 
 /// obtaining a copy of this software and associated documentation 
@@ -33,37 +33,44 @@
 /// SOFTWARE.
 //////////////////////////////////////////////////////////////////////
 
-#if !defined(JVJSON_ELEMENT_BOOLEAN_HPP)
-#define JVJSON_ELEMENT_BOOLEAN_HPP
+#if !defined(JVJSON_ELEMENT_INTEGER_HPP)
+#define JVJSON_ELEMENT_INTEGER_HPP
 
 #include "global.hpp"
 #include "types.hpp"
-#include "element.hpp"
+#include "native_type.hpp"
+#include "element_number.hpp"
 
 namespace JVJSON_NAMESPACE_NAME
 {
     
-/// This class represents a boolean value (true, false) in a JSON 
-/// document.
-class ElementBoolean : public Element
+/// This class represents an integer value in a JSON document.
+class ElementInteger : public ElementNumber
 {
 public:
-    ElementBoolean(bool_t value);
+    ElementInteger(intmax_t value, NativeType type=NATIVE_TYPE_NONE);
+    ElementInteger(uintmax_t value, NativeType type=NATIVE_TYPE_NONE);
 
-    virtual ElementType GetType(void) const;    
-    virtual NativeType GetNativeType(void) const;
-    virtual bool_t IsValue(void) const;
-    virtual bool_t GetValueAsBool(const bool_t allowConversion=false, bool_t* valid=nullptr);
+    virtual ElementType GetType(void) const;
+    
     virtual uint8_t GetValueAsUint8(const bool_t allowConversion=false, bool_t* valid=nullptr);    
     virtual uint16_t GetValueAsUint16(const bool_t allowConversion=false, bool_t* valid=nullptr);
     virtual uint32_t GetValueAsUint32(const bool_t allowConversion=false, bool_t* valid=nullptr);    
+    virtual uint64_t GetValueAsUint64(const bool_t allowConversion=false, bool_t* valid=nullptr);    
     virtual std::string GetValueAsString(const bool_t allowConversion=false, bool_t* valid=nullptr);
-    
+
 private:
+    intmax_t GetLocalValueSigned(const bool_t allowConversion=false);
+    uintmax_t GetLocalValueUnsigned(const bool_t allowConversion=false);
+
     bool_t hasInternalValue;
+    bool_t isSigned;
+    NativeType nativeType;
+
     union
     {
-        bool_t internalValue;
+        intmax_t internalValueSigned;
+        uintmax_t internalValueUnsigned;
         size_t valueIndex;
     } value;
 };

@@ -1,8 +1,8 @@
 //////////////////////////////////////////////////////////////////////
 /// @file
 ///
-/// Header file for JSON Element Boolean class.  Represents a JSON
-/// boolean value (true, false).  
+/// Definition for various functions converting strings to / from
+/// numeric values and other types.
 ///
 /// Part of the JV JSON parser project, 
 /// https://github.com/jvechinski/jv_json
@@ -10,7 +10,7 @@
 ///
 /// @ingroup jv_json
 ///
-/// Copyright (c) 2014 Jeremy S. Vechinski
+/// Copyright (c) 2015 Jeremy S. Vechinski
 ///
 /// Permission is hereby granted, free of charge, to any person 
 /// obtaining a copy of this software and associated documentation 
@@ -33,41 +33,25 @@
 /// SOFTWARE.
 //////////////////////////////////////////////////////////////////////
 
-#if !defined(JVJSON_ELEMENT_BOOLEAN_HPP)
-#define JVJSON_ELEMENT_BOOLEAN_HPP
+#if !defined(JVJSON_STRING_CONVERSION_HPP)
+#define JVJSON_STRING_CONVERSION_HPP
 
 #include "global.hpp"
-#include "types.hpp"
-#include "element.hpp"
+
+#include <string>
 
 namespace JVJSON_NAMESPACE_NAME
 {
     
-/// This class represents a boolean value (true, false) in a JSON 
-/// document.
-class ElementBoolean : public Element
-{
-public:
-    ElementBoolean(bool_t value);
+std::string ToString(int val);
+std::string ToString(long val);
+std::string ToString(long long val);
+std::string ToString(unsigned val);
+std::string ToString(unsigned long val);
+std::string ToString(unsigned long long val);
+std::string ToString(float val);
+std::string ToString(double val);    
 
-    virtual ElementType GetType(void) const;    
-    virtual NativeType GetNativeType(void) const;
-    virtual bool_t IsValue(void) const;
-    virtual bool_t GetValueAsBool(const bool_t allowConversion=false, bool_t* valid=nullptr);
-    virtual uint8_t GetValueAsUint8(const bool_t allowConversion=false, bool_t* valid=nullptr);    
-    virtual uint16_t GetValueAsUint16(const bool_t allowConversion=false, bool_t* valid=nullptr);
-    virtual uint32_t GetValueAsUint32(const bool_t allowConversion=false, bool_t* valid=nullptr);    
-    virtual std::string GetValueAsString(const bool_t allowConversion=false, bool_t* valid=nullptr);
-    
-private:
-    bool_t hasInternalValue;
-    union
-    {
-        bool_t internalValue;
-        size_t valueIndex;
-    } value;
-};
-
-};
+}
 
 #endif

@@ -1,4 +1,5 @@
 #include <cassert>
+#include <cstring>
 #include <fstream>
 
 #include <stdio.h>
@@ -6,6 +7,8 @@
 #include "document.hpp"
 #include "element_array.hpp"
 #include "element_boolean.hpp"
+#include "element_float.hpp"
+#include "element_integer.hpp"
 #include "element_null.hpp"
 #include "element_object.hpp"
 #include "cJSON/cJSON.h"
@@ -134,13 +137,31 @@ Element* Document::ConstructElementFromCjsonItem(cJSON* item)
     switch (item->type)
     {
         case cJSON_False:
-            newElement = new ElementBoolean();
+            newElement = new ElementBoolean(false);
             break;
         case cJSON_True:
-            newElement = new ElementBoolean();
+            newElement = new ElementBoolean(true);
             break;
         case cJSON_NULL:
             newElement = new ElementNull();
+            break;
+        case cJSON_Number:
+            // We use the presence of a decimal point (i.e. 1.0, 1.1)
+            // or exponent (1e-10, 2E31) to signify a floating point
+            // number.
+            // Any number without this identifying information is
+            // considered an integer.  (Note that the JSON standard
+            // does not make this distinction, but this is how
+            // many languages where floating point numbers and integers
+            // are different handle things.)
+            if (item->valuefractional)
+            {
+                newElement = new ElementFloat((floatmax_t)item->valuedouble);
+            }
+            else
+            {
+                newElement = new ElementInteger((intmax_t)item->valueint);                
+            }
             break;
         case cJSON_Object:
             newElement = new ElementObject();

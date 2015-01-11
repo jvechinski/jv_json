@@ -52,7 +52,7 @@ t.dec(r'Element& array = document.GetRootElement().GetElement("type_array");')
 
 # Element index in object
 t.chk(r'array.GetElement(3).GetValueAsBool() == true')
-t.chk(r'array.GetElement("4", &exists).GetValueAsBool() == true')
+t.chk(r'array.GetElement("4", &exists).GetValueAsBool() == false')
 t.chk(r'exists==true')
 # Element index not in object
 t.exe(r'try { array.GetElement(6); } catch (const std::runtime_error& e) { exception = true; }')

@@ -31,5 +31,6 @@ def create_simple_json_file():
                         'type_null': None,
                         'type_array': [1, 2.0, 'hello', True, False, {'deep_bool_true': True}],
                         'type_integer': 5, 
-                        'type_float': 7.0}, sort_keys=True, indent=4))
+                        'type_float': -3.14,
+                        'type_float_exponent': 4e-24}, sort_keys=True, indent=4))
     f.close()

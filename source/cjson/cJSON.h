@@ -49,6 +49,7 @@ typedef struct cJSON {
 	char *valuestring;			/* The item's string, if type==cJSON_String */
 	int valueint;				/* The item's number, if type==cJSON_Number */
 	double valuedouble;			/* The item's number, if type==cJSON_Number */
+    int valuefractional;        /* If cJSON_Number, whether the value has a fractional part */
 
 	char *string;				/* The item's name string, if this item is the child of, or is in the list of subitems of an object. */
 } cJSON;

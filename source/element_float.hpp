@@ -1,8 +1,8 @@
 //////////////////////////////////////////////////////////////////////
 /// @file
 ///
-/// Header file for JSON Element Boolean class.  Represents a JSON
-/// boolean value (true, false).  
+/// Header file for JSON Element Float class.  Represents a JSON
+/// floating point value.  
 ///
 /// Part of the JV JSON parser project, 
 /// https://github.com/jvechinski/jv_json
@@ -10,7 +10,7 @@
 ///
 /// @ingroup jv_json
 ///
-/// Copyright (c) 2014 Jeremy S. Vechinski
+/// Copyright (c) 2015 Jeremy S. Vechinski
 ///
 /// Permission is hereby granted, free of charge, to any person 
 /// obtaining a copy of this software and associated documentation 
@@ -33,39 +33,40 @@
 /// SOFTWARE.
 //////////////////////////////////////////////////////////////////////
 
-#if !defined(JVJSON_ELEMENT_BOOLEAN_HPP)
-#define JVJSON_ELEMENT_BOOLEAN_HPP
+#if !defined(JVJSON_ELEMENT_FLOAT_HPP)
+#define JVJSON_ELEMENT_FLOAT_HPP
 
 #include "global.hpp"
 #include "types.hpp"
-#include "element.hpp"
+#include "element_number.hpp"
 
 namespace JVJSON_NAMESPACE_NAME
 {
     
-/// This class represents a boolean value (true, false) in a JSON 
+/// This class represents a floating point value in a JSON 
 /// document.
-class ElementBoolean : public Element
+class ElementFloat : public ElementNumber
 {
 public:
-    ElementBoolean(bool_t value);
+    ElementFloat(floatmax_t value, NativeType type=NATIVE_TYPE_NONE);
+    
+    virtual ElementType GetType(void) const;
 
-    virtual ElementType GetType(void) const;    
-    virtual NativeType GetNativeType(void) const;
-    virtual bool_t IsValue(void) const;
-    virtual bool_t GetValueAsBool(const bool_t allowConversion=false, bool_t* valid=nullptr);
-    virtual uint8_t GetValueAsUint8(const bool_t allowConversion=false, bool_t* valid=nullptr);    
-    virtual uint16_t GetValueAsUint16(const bool_t allowConversion=false, bool_t* valid=nullptr);
-    virtual uint32_t GetValueAsUint32(const bool_t allowConversion=false, bool_t* valid=nullptr);    
+    virtual float32_t GetValueAsFloat32(bool_t allowConversion=false, bool_t* valid=nullptr);
+    virtual float64_t GetValueAsFloat64(bool_t allowConversion=false, bool_t* valid=nullptr);            
     virtual std::string GetValueAsString(const bool_t allowConversion=false, bool_t* valid=nullptr);
     
 private:
+    floatmax_t GetLocalValue(void);
+
     bool_t hasInternalValue;
+    NativeType nativeType;
+
     union
     {
-        bool_t internalValue;
+        floatmax_t internalValue;
         size_t valueIndex;
-    } value;
+    } value;    
 };
 
 };
