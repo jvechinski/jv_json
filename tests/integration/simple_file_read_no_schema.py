@@ -4,7 +4,7 @@ import _common
 
 t = Target('simple_file_read_no_schema')                               
 
-t.globalcode(_common.global_code())
+t.globalcode('#include <cstring>\n'+_common.global_code())
 
 _common.read_document_case(t)
 
@@ -58,5 +58,13 @@ t.chk(r'integerElement.IsNumber() == true')
 # exponent
 t.chk(r'root.HasElement("type_float_exponent") == true')
 t.chk(r'root.GetElement("type_float_exponent").GetType() == ELEMENT_TYPE_FLOAT')
+
+# Verify string value is present.
+t.chk(r'root.HasElement("type_string") == true')
+t.exe(r'Element& stringElement = root.GetElement("type_string");')
+t.chk(r'stringElement.GetType() == ELEMENT_TYPE_STRING')
+t.chk(r'strcmp(stringElement.GetValueAsString().c_str(), "world")==0', fmt=None)
+t.chk(r'stringElement.IsValue() == true')
+t.chk(r'stringElement.IsNumber() == false')
 
 run()

@@ -65,21 +65,41 @@ ElementType ElementInteger::GetType(void) const
       
 uint8_t ElementInteger::GetValueAsUint8(bool_t allowConversion, bool_t* valid)
 {
+    if (valid)
+    {
+        *valid = true;
+    }
+        
     return (uint8_t)this->GetLocalValueUnsigned(true);
 }
 
 uint16_t ElementInteger::GetValueAsUint16(bool_t allowConversion, bool_t* valid)
 {
+    if (valid)
+    {
+        *valid = true;
+    }
+
     return (uint16_t)this->GetLocalValueUnsigned(true);
 }
 
 uint32_t ElementInteger::GetValueAsUint32(bool_t allowConversion, bool_t* valid)
 {
+    if (valid)
+    {
+        *valid = true;
+    }
+        
     return (uint32_t)this->GetLocalValueUnsigned(true);
 }
 
 uint64_t ElementInteger::GetValueAsUint64(bool_t allowConversion, bool_t* valid)
 {
+    if (valid)
+    {
+        *valid = true;
+    }
+        
     return (uint64_t)this->GetLocalValueUnsigned(true);
 }
 

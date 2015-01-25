@@ -27,7 +27,7 @@ case('size',
 
 t.dec(r'Element& object = document.GetRootElement();')
 
-t.chk(r'object.GetSize() == 7')
+t.chk(r'object.GetSize() == 8')
 
 case('has_functions',
      'Verifies that the HasElement() functions work properly')

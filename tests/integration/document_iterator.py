@@ -13,7 +13,7 @@ case('document_iterator',
 
 # Iterate through all child elements in the root element.
 t.dec('uint32_t count;')
-t.out('count', 0, 15)
+t.out('count', 0, 17)
 t.exe(r'''
 for (Document::Iterator i = document.Begin();
      i != document.End();
@@ -32,7 +32,7 @@ case('document_iterator',
 
 # Iterate through all child elements in the root element.
 t.dec('uint32_t count;')
-t.out('count', 0, 18)
+t.out('count', 0, 20)
 t.exe(r'''
 for (Document::Iterator i = document.Begin(true);
      i != document.End();

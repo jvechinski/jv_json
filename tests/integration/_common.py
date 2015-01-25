@@ -29,8 +29,9 @@ def create_simple_json_file():
     f.write(json.dumps({'type_bool_true': True,
                         'type_bool_false': False,
                         'type_null': None,
-                        'type_array': [1, 2.0, 'hello', True, False, {'deep_bool_true': True}],
+                        'type_array': [1, 2.0, 'hello', True, False, {'deep_bool_true': True, 'deep_string': 'jv_json'}],
                         'type_integer': 5, 
                         'type_float': -3.14,
-                        'type_float_exponent': 4e-24}, sort_keys=True, indent=4))
+                        'type_float_exponent': 4e-24,
+                        'type_string': 'world'}, sort_keys=True, indent=4))
     f.close()

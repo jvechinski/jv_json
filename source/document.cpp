@@ -11,6 +11,7 @@
 #include "element_integer.hpp"
 #include "element_null.hpp"
 #include "element_object.hpp"
+#include "element_string.hpp"
 #include "cJSON/cJSON.h"
 
 namespace JVJSON_NAMESPACE_NAME
@@ -163,12 +164,15 @@ Element* Document::ConstructElementFromCjsonItem(cJSON* item)
                 newElement = new ElementInteger((intmax_t)item->valueint);                
             }
             break;
+        case cJSON_String:
+            newElement = new ElementString(item->valuestring);
+            break;
         case cJSON_Object:
             newElement = new ElementObject();
             break;
         case cJSON_Array:
             newElement = new ElementArray();
-            break;
+            break;        
     }
     
     if (newElement != nullptr)
