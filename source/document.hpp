@@ -73,10 +73,12 @@ public:
     
     Element& GetUndefinedElement(void);
     
-    bool_t ReadFromFile(const char* filename=NULL, const char* schemaFilename=NULL);
-    bool_t WriteToFile(const char* filename=NULL, const char* schemaFilename=NULL);
+    bool_t ReadFromFile(const char* filename=nullptr, const char* schemaFilename=nullptr);
+    bool_t WriteToFile(const char* filename=nullptr, const char* schemaFilename=nullptr);
     
     uint8_t* GetValueTablePointer(void);
+    
+    bool_t ValidateAgainstSchema(bool_t raiseException=false);
 
     class Iterator: public std::iterator<std::forward_iterator_tag, Element>
     {
@@ -121,11 +123,14 @@ private:
 
     Element* RecursiveParseCjsonItems(cJSON* item);
     Element* ConstructElementFromCjsonItem(cJSON* item);
+    Element* InternalReadFromJsonFile(std::string filename);
+    bool_t PairWithSchemaElements(void);
     void AllocateValueTable(void);
 
     std::string filename;
     std::string schemaFilename;
     Element* rootElement;    
+    Document* schemaDocument;
     uint8_t* valueTable;    
 };
 

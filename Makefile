@@ -16,6 +16,7 @@ SOURCES=source/document.cpp \
         source/element_null.cpp \
         source/element_object.cpp \
         source/element_string.cpp \
+        source/element_type.cpp \
         source/exception.cpp \
         source/string_conversion.cpp \
         source/native_type.cpp 

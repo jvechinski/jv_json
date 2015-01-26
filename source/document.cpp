@@ -41,18 +41,14 @@ Element& Document::GetUndefinedElement(void)
     return undefinedElement;
 }
 
-bool_t Document::ReadFromFile(const char* filename, const char* schemaFilename)
+Element* Document::InternalReadFromJsonFile(std::string filename) 
 {
-    printf("Parsing file %s\n", filename);
-    
-    this->filename = std::string(filename);
-    
     std::ifstream infile;
-    infile.open(filename);
+    infile.open(filename.c_str());
     
     if (!infile.is_open())
     {
-        return false;
+        return nullptr;
     }
     
     infile.seekg(0, std::ios::end);
@@ -65,20 +61,48 @@ bool_t Document::ReadFromFile(const char* filename, const char* schemaFilename)
     
     cJSON *root = cJSON_Parse(buffer);
     
-    printf("Parsed file, root pointer 0x%x\n", (uint32_t)root);
-    
     delete buffer;
     
-    this->rootElement = this->RecursiveParseCjsonItems(root);
+    Element* rootElement = this->RecursiveParseCjsonItems(root);
     
     // Allocate storage for the Element values.
     this->AllocateValueTable();
     
-    // Go through the cJSON items and set the Element values.    
-       
     cJSON_Delete(root);
     
-    return true;
+    return rootElement;
+}
+
+bool_t Document::ReadFromFile(const char* filename, const char* schemaFilename)
+{
+    bool_t returnValue = true;
+    
+    this->filename = std::string(filename);
+    
+    if (schemaFilename)
+    {
+        this->schemaFilename = std::string(schemaFilename);
+        
+        this->schemaDocument = new Document();
+        
+        returnValue = this->schemaDocument->ReadFromFile(
+            schemaFilename);
+    }       
+    
+    this->rootElement = InternalReadFromJsonFile(this->filename);
+    
+    if (!this->rootElement)
+    {
+        returnValue = false;
+    }
+    
+    if ((returnValue) && (schemaFilename))
+    {
+        returnValue = this->PairWithSchemaElements();
+        returnValue = this->ValidateAgainstSchema();
+    }
+    
+    return returnValue;
 }   
 
 Element* Document::RecursiveParseCjsonItems(cJSON* item)
@@ -178,6 +202,7 @@ Element* Document::ConstructElementFromCjsonItem(cJSON* item)
     if (newElement != nullptr)
     {
         newElement->document = this;
+        newElement->schemaElement = nullptr;
     }
         
     return newElement;
@@ -186,6 +211,38 @@ Element* Document::ConstructElementFromCjsonItem(cJSON* item)
 void Document::AllocateValueTable(void)
 {
     return;
+}
+
+bool_t Document::ValidateAgainstSchema(bool_t raiseException)
+{
+    bool_t returnValue = true;
+    Document::Iterator i = this->Begin();
+    
+    while ((i != this->End()) && (returnValue))
+    {
+        returnValue = i.GetElement().ValidateAgainstSchema(
+            raiseException);
+        i++;
+    }
+    
+    return returnValue;
+}
+
+bool_t Document::PairWithSchemaElements(void)
+{
+    Element* schemaRootElement = nullptr;
+    
+    if (this->schemaDocument)
+    {        
+        schemaRootElement = &(this->schemaDocument->GetRootElement());        
+        
+        if ((this->rootElement) && (schemaRootElement))
+        {
+            this->rootElement->schemaElement = schemaRootElement;
+        }
+    }
+    
+    return true;
 }
     
 }

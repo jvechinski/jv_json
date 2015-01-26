@@ -114,6 +114,8 @@ public:
     std::string GetName(void);
     std::size_t GetIndex(void);
     std::string GetAddress(bool_t documentPath=false, bool_t recursiveCall=false);    
+    
+    bool_t ValidateAgainstSchema(bool_t raiseException=false);
 
     class Iterator : public std::iterator<std::forward_iterator_tag, Element>
     {
@@ -147,11 +149,12 @@ protected:
     void AddElement(Element& element);
     
     /// Pointer to the Document object that contains the element.
-    Document* document;
-    
-    bool_t ValidateTypeAgainstSchema(void);    
+    Document* document;        
     
 private:    
+    bool_t CompareAgainstSchemaTypeElement(Element& typeElement);
+    bool_t ValidateTypeAgainstSchema(void);    
+
     /// Pointer to the parent element.  If this Element is in another
     /// Element (i.e. Object or Array), this will point to the 
     /// container Element.  

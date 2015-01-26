@@ -1,7 +1,7 @@
 //////////////////////////////////////////////////////////////////////
 /// @file
 ///
-/// Header file for JSON element type items.
+/// Element type helper functions.  
 ///
 /// Part of the JV JSON parser project, 
 /// https://github.com/jvechinski/jv_json
@@ -9,7 +9,7 @@
 ///
 /// @ingroup jv_json
 ///
-/// Copyright (c) 2014 Jeremy S. Vechinski
+/// Copyright (c) 2015 Jeremy S. Vechinski
 ///
 /// Permission is hereby granted, free of charge, to any person 
 /// obtaining a copy of this software and associated documentation 
@@ -32,31 +32,46 @@
 /// SOFTWARE.
 //////////////////////////////////////////////////////////////////////
 
-#if !defined(JVJSON_ELEMENT_TYPE_HPP)
-#define JVJSON_ELEMENT_TYPE_HPP
-
 #include "global.hpp"
+#include "types.hpp"
+#include "element_type.hpp"
 
 namespace JVJSON_NAMESPACE_NAME
 {
 
-enum ElementType
+const char* ElementTypeToSchemaString(ElementType type)
 {
-    ELEMENT_TYPE_NULL,
-    ELEMENT_TYPE_INTEGER,
-    ELEMENT_TYPE_FLOAT,
-    ELEMENT_TYPE_STRING,
-    ELEMENT_TYPE_BOOLEAN,
-    ELEMENT_TYPE_ARRAY,
-    ELEMENT_TYPE_OBJECT,
-    ELEMENT_TYPE_REFERENCE,
-    ELEMENT_TYPE_UNDEFINED
+    const char* string;
+    
+    switch (type)
+    {
+        case ELEMENT_TYPE_NULL:
+            string = "null";
+            break;
+        case ELEMENT_TYPE_INTEGER:
+        case ELEMENT_TYPE_FLOAT:
+            string = "number";
+            break;        
+        case ELEMENT_TYPE_STRING:
+            string = "string";
+            break;
+        case ELEMENT_TYPE_BOOLEAN:
+            string = "boolean";
+            break;
+        case ELEMENT_TYPE_ARRAY:
+            string = "array";
+            break;
+        case ELEMENT_TYPE_OBJECT:
+            string = "object";
+            break;                        
+        case ELEMENT_TYPE_REFERENCE:
+        case ELEMENT_TYPE_UNDEFINED:
+        default:
+            string = "";
+            break;            
+    }
+    
+    return string;
+}
+
 };
-
-const char* ElementTypeToString(ElementType type);
-
-const char* ElementTypeToSchemaString(ElementType type);
-
-};
-
-#endif

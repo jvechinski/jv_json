@@ -3,7 +3,9 @@
 #include "exception.hpp"
 
 #include <cstring>
+#include <cassert>
 #include <stdio.h>
+#include <string>
 
 namespace JVJSON_NAMESPACE_NAME
 {
@@ -280,16 +282,6 @@ uint32_t Element::GetValueAsBytes(uint8_t* buffer, uint32_t numberOfBytes)
     return 0U;
 }
     
-bool_t Element::ValidateTypeAgainstSchema(void)
-{
-    if (!this->schemaElement)
-    {
-        return false;
-    }
-    
-    return true;
-}
-
 void Element::SetValueWithBool(bool_t valueVariable, bool_t allowConversion, bool_t* valid)
 {
     if (valid)
@@ -373,6 +365,86 @@ std::string Element::GetAddress(bool_t documentPath, bool_t recursiveCall)
         }
         return address;
     }
+}
+
+bool_t Element::ValidateAgainstSchema(bool_t raiseException)
+{
+    bool_t returnValue = true;
+    
+    if (this->schemaElement)
+    {
+        // The schema element should be an object.  We should have 
+        // caught that when validating against the meta-schema.
+        assert(this->schemaElement->GetType() == ELEMENT_TYPE_OBJECT);
+        
+        returnValue = this->ValidateTypeAgainstSchema();
+    }
+    
+    return returnValue;
+}
+
+bool_t Element::CompareAgainstSchemaTypeElement(Element& typeElement)
+{
+    bool_t returnValue = true;
+    
+    if (typeElement.GetType() == ELEMENT_TYPE_STRING)
+    {
+        std::string thisElementTypeString(
+            ElementTypeToSchemaString(this->GetType()));
+        
+        if (thisElementTypeString != typeElement.GetValueAsString())
+        {
+            // There is only a single special case.
+            // Integer types can match both "number" and "integer" type
+            // strings.
+            if (
+                (this->IsNumber()) &&
+                (thisElementTypeString == std::string("number"))
+               )
+            {
+                returnValue = true;
+            }
+            else
+            {
+                returnValue = false;
+            }
+        }
+    }
+    
+    return returnValue;
+}
+
+bool_t Element::ValidateTypeAgainstSchema(void)
+{
+    bool_t hasTypeElement;
+    bool_t returnValue = true;
+    
+    Element& typeElement = this->schemaElement->GetElement(
+        "type", &hasTypeElement);
+    
+    if (hasTypeElement)
+    {
+        if (typeElement.GetType() == ELEMENT_TYPE_ARRAY)
+        {
+            returnValue = false;
+            
+            for (Element::Iterator i = typeElement.Begin();
+                 (i != typeElement.End()) && (!returnValue);
+                 i++)
+            {
+                returnValue = 
+                    this->CompareAgainstSchemaTypeElement(
+                        i.GetElement());                
+            }
+        }
+        else
+        {
+            returnValue = 
+                this->CompareAgainstSchemaTypeElement(typeElement);
+        }
+    }
+    
+    return returnValue;
 }
 
 };
