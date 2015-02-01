@@ -367,17 +367,142 @@ std::string Element::GetAddress(bool_t documentPath, bool_t recursiveCall)
     }
 }
 
+void Element::AssignSchemasToChildElements(void)
+{
+    return;
+}
+
+Element* Element::GetSchemaElement(void)
+{
+    return this->schemaElement;
+}
+
+void Element::SetSchemaElement(Element* schemaElement)
+{
+    this->schemaElement = schemaElement;
+}
+
 bool_t Element::ValidateAgainstSchema(bool_t raiseException)
 {
     bool_t returnValue = true;
-    
-    if (this->schemaElement)
-    {
-        // The schema element should be an object.  We should have 
-        // caught that when validating against the meta-schema.
-        assert(this->schemaElement->GetType() == ELEMENT_TYPE_OBJECT);
         
-        returnValue = this->ValidateTypeAgainstSchema();
+    if (this->schemaElement)
+    {       
+        returnValue = this->ValidateAgainstSchemaInternal(
+            *this->schemaElement);
+    }
+    
+    return returnValue;
+}
+
+static uint32_t CountTrueItemsInArray(std::vector<bool_t>& array)
+{
+    uint32_t trueCount = 0;
+    std::vector<bool_t>::iterator iterator;
+    
+    for (iterator = array.begin(); iterator < array.end(); iterator++)
+    {
+        if (*iterator)
+        {
+            trueCount += 1;
+        }
+    }
+    
+    return trueCount;
+}
+
+bool_t Element::ValidateAgainstSchemaInternal(Element& schemaElement)
+{
+    bool_t hasElement;
+    
+    //printf("ValidateAgainstSchemaInternal\n");
+    
+    bool_t returnValue = this->ValidateAgainstSubschema(schemaElement);
+
+    // Handle any "not" subschema.
+    Element& notElement = schemaElement.GetElement(
+        "not", &hasElement);
+    if ((hasElement) && (returnValue))
+    {
+        //printf("Checking not element\n");
+        returnValue = !(this->ValidateAgainstSchemaInternal(notElement));
+        //printf("Not return value %d\n", returnValue);
+    }
+    
+    // Handle any compound subschema, such as anyOf, allOf, oneOf,
+    // etc.
+    const char_t* COMPOUND_KEYWORDS[] = {"anyOf", "allOf", "oneOf"};
+    for (uint32_t i = 0; i < 3; i++)
+    {
+        const char_t* compoundKeyword = COMPOUND_KEYWORDS[i];
+        
+        Element& compoundElement = schemaElement.GetElement(
+            compoundKeyword, &hasElement);
+            
+        if ((hasElement) && (returnValue))
+        {
+            //printf("Checking compound element %s\n", compoundKeyword);
+            
+            // Compound subschemas should be in an array.
+            assert(compoundElement.GetType() == ELEMENT_TYPE_ARRAY);
+            
+            std::vector<bool_t> resultArray;
+            
+            // For each subschema in the compound, call ourselves
+            // recursively to evaluate each one.  Store the results
+            // in an array.
+            for (Element::Iterator j = compoundElement.Begin();
+                 j != compoundElement.End();
+                 j++)
+            {
+                bool_t compoundResult = 
+                    this->ValidateAgainstSchemaInternal(
+                        j.GetElement());
+                resultArray.push_back(compoundResult);
+            }
+            
+            uint32_t trueCount = CountTrueItemsInArray(resultArray);
+            
+            // allOf... requires that all subschemas are true.
+            if ((std::string(compoundKeyword) == std::string("allOf")) && 
+                (trueCount < compoundElement.GetSize()))
+            {
+                returnValue = false;
+            }
+            // oneOf... requires that exactly 1 subschema is true.
+            else if (
+                (std::string(compoundKeyword) == std::string("oneOf")) && 
+                (trueCount != 1U))
+            {
+                returnValue = false;
+            }    
+            // anyOf... requires that at least one subschema is true.
+            else if (trueCount == 0)
+            {
+                returnValue = false;
+            }
+        }
+    }
+    
+    //printf("ValidateAgainstSchemaInternal, return %d\n", returnValue);
+    
+    return returnValue;
+}
+
+bool_t Element::ValidateAgainstSubschema(Element& schemaElement)
+{
+    bool_t returnValue = true;
+    
+    // The schema element should be an object.  We should have 
+    // caught that when validating against the meta-schema.
+    assert(schemaElement.GetType() == ELEMENT_TYPE_OBJECT);    
+    
+    returnValue = this->ValidateTypeAgainstSchema(schemaElement);
+    
+    if (returnValue)
+    {
+        returnValue = this->ValidateValueAgainstSchemaEnum(
+            schemaElement);
     }
     
     return returnValue;
@@ -391,7 +516,7 @@ bool_t Element::CompareAgainstSchemaTypeElement(Element& typeElement)
     {
         std::string thisElementTypeString(
             ElementTypeToSchemaString(this->GetType()));
-        
+            
         if (thisElementTypeString != typeElement.GetValueAsString())
         {
             // There is only a single special case.
@@ -399,7 +524,7 @@ bool_t Element::CompareAgainstSchemaTypeElement(Element& typeElement)
             // strings.
             if (
                 (this->IsNumber()) &&
-                (thisElementTypeString == std::string("number"))
+                (typeElement.GetValueAsString() == std::string("number"))
                )
             {
                 returnValue = true;
@@ -414,12 +539,12 @@ bool_t Element::CompareAgainstSchemaTypeElement(Element& typeElement)
     return returnValue;
 }
 
-bool_t Element::ValidateTypeAgainstSchema(void)
+bool_t Element::ValidateTypeAgainstSchema(Element& schemaElement)
 {
     bool_t hasTypeElement;
     bool_t returnValue = true;
     
-    Element& typeElement = this->schemaElement->GetElement(
+    Element& typeElement = schemaElement.GetElement(
         "type", &hasTypeElement);
     
     if (hasTypeElement)
@@ -442,6 +567,23 @@ bool_t Element::ValidateTypeAgainstSchema(void)
             returnValue = 
                 this->CompareAgainstSchemaTypeElement(typeElement);
         }
+    }
+    
+    return returnValue;
+}
+
+bool_t Element::ValidateValueAgainstSchemaEnum(Element& schemaElement)
+{
+    bool_t hasEnumElement;
+    bool_t returnValue = true;
+    
+    Element& enumElement = schemaElement.GetElement(
+        "enum", &hasEnumElement);
+    
+    if (hasEnumElement)
+    {
+        // Enum values should be in an array.
+        assert(enumElement.GetType() == ELEMENT_TYPE_ARRAY);
     }
     
     return returnValue;

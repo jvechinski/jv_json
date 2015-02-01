@@ -239,6 +239,7 @@ bool_t Document::PairWithSchemaElements(void)
         if ((this->rootElement) && (schemaRootElement))
         {
             this->rootElement->schemaElement = schemaRootElement;
+            this->rootElement->AssignSchemasToChildElements();
         }
     }
     

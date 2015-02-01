@@ -59,10 +59,12 @@ public:
     virtual void AddElement(const std::string& elementName, Element& element);    
 
     virtual std::size_t GetSize(void) const;
+
+    virtual void AssignSchemasToChildElements(void);
     
 protected:
     virtual Element& GetElementPrivate(const std::string& elementName, bool_t* exists);
-
+    
 private:
     JVJSON_OBJECT_TYPE map;
 

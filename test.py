@@ -6,12 +6,15 @@ test_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                         'tests')
 
 def run_test(test_filename):
-    exit_code = subprocess.call([sys.executable, test_filename])
-    
     test_result_dir = os.path.join(test_dir, '..', 
         '_' + os.path.basename(test_filename).replace('.', '_'))
     test_result_file = os.path.join(test_result_dir, 'result.txt')
     
+    if os.path.isfile(test_result_file):
+        os.unlink(test_result_file)    
+    
+    exit_code = subprocess.call([sys.executable, test_filename])   
+   
     if os.path.isfile(test_result_file) and file(test_result_file).read().strip() == 'PASS':
         return True
         

@@ -49,6 +49,8 @@ const char* ElementTypeToSchemaString(ElementType type)
             string = "null";
             break;
         case ELEMENT_TYPE_INTEGER:
+            string = "integer";
+            break;  
         case ELEMENT_TYPE_FLOAT:
             string = "number";
             break;        

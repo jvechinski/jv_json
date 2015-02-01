@@ -93,5 +93,81 @@ std::size_t ElementArray::GetSize(void) const
 {
     return this->array.size();
 }  
+
+void ElementArray::AssignSchemasToChildElements(void)
+{
+    bool_t hasElement;
+    
+    // Clear the schema out of all child elements.
+    for (Element::Iterator i = this->Begin();
+         i != this->End();
+         i++)
+    {
+        i.GetElement().SetSchemaElement(nullptr);
+    }
+    
+    Element& itemsElement = this->schemaElement->GetElement(
+        "items", &hasElement);
+    
+    // If "items" is defined in the schema and is an array, go through 
+    // the array and assign schema elements to the matching
+    // children.
+    if ((hasElement) && (itemsElement.GetType() == ELEMENT_TYPE_ARRAY))
+    {
+        for (Element::Iterator i = itemsElement.Begin();
+             i != itemsElement.End();
+             i++)
+        {
+            uint32_t index = i.GetIndex();
+            
+            // Is there a child element for this index?
+            Element& childElement = this->GetElement(
+                index, &hasElement);
+            if (hasElement)
+            {
+                childElement.SetSchemaElement(&(i.GetElement()));                
+                childElement.AssignSchemasToChildElements();
+            }
+        }
+    }
+    
+    // Special case here... either "items" or "additionalItems" can
+    // be an object that is the schema for all other unspecified
+    // childen.
+    Element* additionalItemsElement;
+    if ((hasElement) && 
+        (itemsElement.GetType() == ELEMENT_TYPE_OBJECT))
+    {
+        additionalItemsElement = &itemsElement;
+    }
+    else
+    {
+        additionalItemsElement = 
+            &this->schemaElement->GetElement("additionalItems", 
+                &hasElement);
+    }
+    
+    // If "items" or "additionalItems" is defined, and it is an object,
+    // then this is the schema for every child that doesn't
+    // already have one.
+    if ((hasElement) && 
+        (additionalItemsElement->GetType() == ELEMENT_TYPE_OBJECT))
+    {
+        // Iterate through all child Elements.  Set the schema
+        // equal to the additonalProperties schema if it is not
+        // already set.
+        for (Element::Iterator i = this->Begin();
+             i != this->End();
+             i++)
+        {
+            if (i.GetElement().GetSchemaElement() == nullptr)
+            {
+                i.GetElement().SetSchemaElement(
+                    additionalItemsElement);
+                i.GetElement().AssignSchemasToChildElements();
+            }
+        }
+    }
+}
     
 };

@@ -116,7 +116,10 @@ public:
     std::string GetAddress(bool_t documentPath=false, bool_t recursiveCall=false);    
     
     bool_t ValidateAgainstSchema(bool_t raiseException=false);
-
+    virtual void AssignSchemasToChildElements(void);
+    Element* GetSchemaElement(void);
+    void SetSchemaElement(Element* schemaElement);
+    
     class Iterator : public std::iterator<std::forward_iterator_tag, Element>
     {
         public:
@@ -146,14 +149,12 @@ protected:
     virtual Element& GetElementPrivate(const std::string& elementName, bool_t* exists);
     virtual Element& GetElementPrivate(const uint32_t elementIndex, bool_t* exists);
 
+    virtual bool_t ValidateAgainstSubschema(Element& schemaElement);    
+
     void AddElement(Element& element);
     
     /// Pointer to the Document object that contains the element.
     Document* document;        
-    
-private:    
-    bool_t CompareAgainstSchemaTypeElement(Element& typeElement);
-    bool_t ValidateTypeAgainstSchema(void);    
 
     /// Pointer to the parent element.  If this Element is in another
     /// Element (i.e. Object or Array), this will point to the 
@@ -164,7 +165,13 @@ private:
     /// properties of this Element.  Note that by definition, the
     /// pointer will point to an Object Element.  Will be null if there 
     /// is no schema associated with this Element.
-    Element* schemaElement;
+    Element* schemaElement;  
+       
+private:    
+    bool_t ValidateAgainstSchemaInternal(Element& schemaElement);
+    bool_t CompareAgainstSchemaTypeElement(Element& typeElement);
+    bool_t ValidateTypeAgainstSchema(Element& schemaElement);
+    bool_t ValidateValueAgainstSchemaEnum(Element& schemaElement);    
 };
 
 };

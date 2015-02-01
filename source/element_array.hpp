@@ -60,6 +60,8 @@ public:
 
     virtual std::size_t GetSize(void) const;
     
+    virtual void AssignSchemasToChildElements(void);
+    
 protected:
     virtual Element& GetElementPrivate(const std::string& elementName, bool_t* exists);
     virtual Element& GetElementPrivate(const uint32_t elementIndex, bool_t* exists);
