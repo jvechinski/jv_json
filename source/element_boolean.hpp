@@ -58,6 +58,8 @@ public:
     virtual uint16_t GetValueAsUint16(const bool_t allowConversion=false, bool_t* valid=nullptr);
     virtual uint32_t GetValueAsUint32(const bool_t allowConversion=false, bool_t* valid=nullptr);    
     virtual std::string GetValueAsString(const bool_t allowConversion=false, bool_t* valid=nullptr);
+
+    virtual int32_t CompareElementValues(Element& otherElement, const bool_t allowConversion=false);
     
 private:
     bool_t hasInternalValue;

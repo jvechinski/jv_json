@@ -48,7 +48,23 @@ std::string ElementString::GetValueAsString(bool_t allowConversion, bool_t* vali
     return this->GetLocalValue();
 }
 
-
+int32_t ElementString::CompareElementValues(Element& otherElement, bool_t allowConversion)
+{
+    // Call the base class validate against schema function.
+    // This will do basic comparision.
+    int32_t returnValue = Element::CompareElementValues(
+        otherElement, allowConversion);
+        
+    if (returnValue == 0)
+    {
+        std::string thisElementValue = this->GetValueAsString();
+        std::string otherElementValue = otherElement.GetValueAsString(allowConversion);
+        
+        returnValue = thisElementValue.compare(otherElementValue);
+    }
+    
+    return returnValue;
+}    
 
 bool_t ElementString::ValidateAgainstSubschema(Element& schemaElement)
 {
@@ -114,8 +130,6 @@ bool_t ElementString::ValidateLengthAgainstSubschema(Element& schemaElement)
             returnValue = false;
         }
     }
-    
-    /// @todo "pattern" Check against a regular expression.
     
     return returnValue;
 }

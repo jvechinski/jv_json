@@ -88,5 +88,33 @@ std::string ElementBoolean::GetValueAsString(bool_t allowConversion, bool_t* val
     
     return Element::GetValueAsString(allowConversion, valid);    
 }
+
+int32_t ElementBoolean::CompareElementValues(Element& otherElement, bool_t allowConversion)
+{
+    // Call the base class validate against schema function.
+    // This will do basic comparision.
+    int32_t returnValue = Element::CompareElementValues(
+        otherElement, allowConversion);
+        
+    if (returnValue == 0)
+    {
+        bool_t thisElementValue = this->GetValueAsBool();
+        bool_t otherElementValue = otherElement.GetValueAsBool(allowConversion);
+        
+        if (thisElementValue != otherElementValue)
+        {
+            if (thisElementValue == false)
+            {
+                returnValue = -1;
+            }
+            else
+            {
+                returnValue = 1;    
+            }
+        }
+    }
+    
+    return returnValue;
+}
     
 };

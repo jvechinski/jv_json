@@ -167,6 +167,34 @@ std::string ElementInteger::GetValueAsString(bool_t allowConversion, bool_t* val
     return Element::GetValueAsString(allowConversion, valid);    
 }
 
+int32_t ElementInteger::CompareElementValues(Element& otherElement, bool_t allowConversion)
+{
+    // Call the base class validate against schema function.
+    // This will do basic comparision.
+    int32_t returnValue = Element::CompareElementValues(
+        otherElement, allowConversion);
+        
+    if (returnValue == 0)
+    {
+        if (this->isSigned)
+        {
+            intmax_t thisElementValue = this->GetValueAsIntMax();
+            intmax_t otherElementValue = otherElement.GetValueAsIntMax(allowConversion);
+        
+            returnValue = (thisElementValue-otherElementValue);
+        }
+        else
+        {
+            uintmax_t thisElementValue = this->GetValueAsUintMax();
+            uintmax_t otherElementValue = otherElement.GetValueAsUintMax(allowConversion);
+                        
+            returnValue = (thisElementValue-otherElementValue);
+        }
+    }
+    
+    return returnValue;
+}
+
 bool_t ElementInteger::ValidateAgainstSubschema(Element& schemaElement)
 {
     // Call the base class validate against schema function.

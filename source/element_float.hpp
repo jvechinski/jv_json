@@ -55,6 +55,8 @@ public:
     virtual float32_t GetValueAsFloat32(bool_t allowConversion=false, bool_t* valid=nullptr);
     virtual float64_t GetValueAsFloat64(bool_t allowConversion=false, bool_t* valid=nullptr);                
     virtual std::string GetValueAsString(const bool_t allowConversion=false, bool_t* valid=nullptr);
+    
+    virtual int32_t CompareElementValues(Element& otherElement, const bool_t allowConversion=false);
 
 protected:
     virtual bool_t ValidateAgainstSubschema(Element& schemaElement); 

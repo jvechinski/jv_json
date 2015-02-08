@@ -61,6 +61,31 @@ std::string ElementFloat::GetValueAsString(bool_t allowConversion, bool_t* valid
     return Element::GetValueAsString(allowConversion, valid);    
 }
 
+int32_t ElementFloat::CompareElementValues(Element& otherElement, bool_t allowConversion)
+{
+    // Call the base class validate against schema function.
+    // This will do basic comparision.
+    int32_t returnValue = Element::CompareElementValues(
+        otherElement, allowConversion);
+        
+    if (returnValue == 0)
+    {
+        floatmax_t thisElementValue = this->GetValueAsFloatMax();
+        floatmax_t otherElementValue = otherElement.GetValueAsFloatMax(allowConversion);
+        
+        if (thisElementValue < otherElementValue)
+        {
+            returnValue = -1;
+        }
+        else if (thisElementValue > otherElementValue)
+        {
+            returnValue = 1;
+        }
+    }
+    
+    return returnValue;
+}
+
 bool_t ElementFloat::ValidateAgainstSubschema(Element& schemaElement)
 {
     // Call the base class validate against schema function.

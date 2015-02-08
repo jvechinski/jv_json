@@ -28,44 +28,57 @@ def read_document_case(t, read_schema=False):
         t.exe(r'result = document.ReadFromFile("..\\..\\simple.json");')
     t.chk('result==true')
 
-def bad_schema_case(t, bad_schema=None, name='', description=''):
-    create_simple_json_file()
-    schema_filename = create_simple_json_schema(bad_schema)
+def bad_schema_case(t, schema=None, name='', description='', document=None):
+    document_filename = create_simple_json_document(document)
+    schema_filename = create_simple_json_schema(schema)
     
     case(name, description)
 
     t.dec('bool_t result=true;')
 
-    t.exe(r'result = document.ReadFromFile("..\\..\\simple.json", '
-          r'"..\\..\\{}");'.format(schema_filename))
+    t.exe(r'result = document.ReadFromFile("..\\..\\{}", '
+          r'"..\\..\\{}");'.format(document_filename, schema_filename))
     
     t.chk('result==false')    
 
-def good_schema_case(t, bad_schema=None, name='', description=''):
-    create_simple_json_file()
-    schema_filename = create_simple_json_schema(bad_schema)
+def good_schema_case(t, schema=None, name='', description='', document=None):
+    document_filename = create_simple_json_document(document)    
+    schema_filename = create_simple_json_schema(schema)
     
     case(name, description)
 
     t.dec('bool_t result=false;')
 
-    t.exe(r'result = document.ReadFromFile("..\\..\\simple.json", '
-          r'"..\\..\\{}");'.format(schema_filename))
+    t.exe(r'result = document.ReadFromFile("..\\..\\{}", '
+          r'"..\\..\\{}");'.format(document_filename, schema_filename))
     
     t.chk('result==true')   
 
-def create_simple_json_file():
-    f = file('simple.json', 'w')
-    f.write(json.dumps({'type_bool_true': True,
-                        'type_bool_false': False,
-                        'type_null': None,
-                        'type_array': [1, 2.0, 'hello', {'deep_bool_true': True, 'deep_string': 'jv_json'}, True, False],
-                        'type_integer': 55, 
-                        'type_float': -3.14,
-                        'type_float_exponent': 4e-24,
-                        'type_string': 'world'}, 
-                       sort_keys=True, indent=4))
+def get_simple_json_document():
+    return {'type_bool_true': True,
+            'type_bool_false': False,
+            'type_null': None,
+            'type_array': [1, 2.0, 'hello', {'deep_bool_true': True, 'deep_string': 'jv_json'}, True, False],
+            'type_integer': 55, 
+            'type_float': -3.14,
+            'type_float_exponent': 4e-24,
+            'type_string': 'world'}
+
+def create_simple_json_file(document=None):
+    if document is None:
+        document = get_simple_json_document()
+        filename = 'simple.json'
+    else:
+        document_hash = hashlib.sha1(str(document)).hexdigest()
+        filename = 'simple{}.json'.format(document_hash)
+    
+    f = file(filename, 'w')
+    f.write(json.dumps(document, sort_keys=True, indent=4))
     f.close()
+    
+    return filename
+    
+create_simple_json_document = create_simple_json_file
     
 def get_simple_json_schema():
     return {'type': 'object',

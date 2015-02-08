@@ -169,5 +169,151 @@ void ElementArray::AssignSchemasToChildElements(void)
         }
     }
 }
+
+bool_t ElementArray::ValidateAgainstSubschema(Element& schemaElement)
+{
+    // Call the base class validate against schema function.
+    // This will check all the common schema items, such as
+    // type.
+    bool_t returnValue = Element::ValidateAgainstSubschema(
+        schemaElement);
+        
+    // Validate that no additional items exist in the list if this
+    // is specified.
+    if (returnValue)
+    {
+        returnValue = this->ValidateAdditionalItems(schemaElement);
+    }
+
+    // Validate the array size.
+    if (returnValue)
+    {
+        returnValue = this->ValidateSizeAgainstSubschema(schemaElement);
+    }   
+    
+    // Validate that all items are unique, if this is a requirement.
+    if (returnValue)
+    {
+        returnValue = this->ValidateUniqueItems(schemaElement);
+    }    
+    
+    return returnValue;
+}
+
+bool_t ElementArray::ValidateAdditionalItems(Element& schemaElement)
+{
+    bool_t hasItems;
+    bool_t hasAdditionalItems;
+    bool_t returnValue = true;
+    
+    Element& additionalItemsElement = schemaElement.GetElement(
+        "additionalItems", &hasAdditionalItems); 
+        
+    if ((hasAdditionalItems) && 
+        (additionalItemsElement.GetType() == ELEMENT_TYPE_BOOLEAN) &&
+        (additionalItemsElement.GetValueAsBool() == false))
+    {
+        Element& itemsElement = schemaElement.GetElement(
+            "items", &hasItems);
+            
+        // Specifying additional items as a boolean is only valid
+        // if the items is present and is the "tuple" form (list of 
+        // schemas for each element).
+        if ((hasItems) &&
+            (itemsElement.GetType() == ELEMENT_TYPE_ARRAY))
+        {
+            // Element is invalid if the number of elements exceeds
+            // the number of schemas in the items array.
+            if (this->GetSize() > itemsElement.GetSize())
+            {
+                returnValue = false;
+            }
+        }
+    }
+    
+    return returnValue;
+}
+
+bool_t ElementArray::ValidateSizeAgainstSubschema(Element& schemaElement)
+{
+    bool_t hasMinItems;
+    bool_t hasMaxItems;
+    bool_t returnValue = true;
+    
+    // Check the array length against min and max items values, if 
+    // present.
+    Element& minItemsElement = schemaElement.GetElement(
+        "minItems", &hasMinItems);
+    Element& maxItemsElement = schemaElement.GetElement(
+        "maxItems", &hasMaxItems);        
+    if ((hasMinItems) || (hasMaxItems))
+    {
+        std::size_t arrayLength = this->GetSize();
+                
+        if ((hasMinItems) && 
+            (minItemsElement.IsNumber()) &&
+            (arrayLength < minItemsElement.GetValueAsUint32(true)))
+        {
+            returnValue = false;
+        }
+                
+        if ((hasMaxItems) && 
+            (maxItemsElement.IsNumber()) &&
+            (arrayLength > maxItemsElement.GetValueAsUint32(true)))
+        {
+            returnValue = false;
+        }
+    }
+    
+    return returnValue;
+}
+
+bool_t ElementArray::ValidateUniqueItems(Element& schemaElement)
+{
+    bool_t hasUniqueItems;
+    bool_t returnValue = true;
+
+    Element& additionalItemsElement = schemaElement.GetElement(
+        "uniqueItems", &hasUniqueItems);
+            
+    if ((hasUniqueItems) &&
+        (additionalItemsElement.GetType() == ELEMENT_TYPE_BOOLEAN) &&
+        (additionalItemsElement.GetValueAsBool() == true))
+    {
+        // Need to walk through the list and compare each element
+        // to all other elements and see if any have the same
+        // value.
+        // Note that this is inefficient, but it is assumed that
+        // most arrays are small (<10 elements) so the time to
+        // do this versus constructing some sort of set / dictionary
+        // is no significantly different.
+        std::size_t arrayLength = this->GetSize();
+        
+        // Outer loop, walks through all items in the array.
+        for (std::size_t i = 0; i < arrayLength; i++)
+        {
+            Element& outerElement = this->GetElement(i);
+            
+            // Inner loop, compares the current outer item with 
+            // items i+1 to the end.
+            // This eliminates doing the same comparisons twice
+            // (trust me, it works).
+            for (std::size_t j = i+1; j < arrayLength; j++)
+            {  
+                Element& innerElement = this->GetElement(j);
+                
+                // Compare outer element to inner element.  If they
+                // are the same value, then the items are NOT considered
+                // unique.
+                if (outerElement.ElementValuesAreEqual(innerElement))
+                {
+                    returnValue = false;
+                }
+            }
+        }
+    }
+    
+    return returnValue;
+}
     
 };
