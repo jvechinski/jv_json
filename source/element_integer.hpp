@@ -57,11 +57,20 @@ public:
     virtual uint16_t GetValueAsUint16(const bool_t allowConversion=false, bool_t* valid=nullptr);
     virtual uint32_t GetValueAsUint32(const bool_t allowConversion=false, bool_t* valid=nullptr);    
     virtual uint64_t GetValueAsUint64(const bool_t allowConversion=false, bool_t* valid=nullptr);    
+    virtual int8_t GetValueAsInt8(const bool_t allowConversion=false, bool_t* valid=nullptr);    
+    virtual int16_t GetValueAsInt16(const bool_t allowConversion=false, bool_t* valid=nullptr);
+    virtual int32_t GetValueAsInt32(const bool_t allowConversion=false, bool_t* valid=nullptr);    
+    virtual int64_t GetValueAsInt64(const bool_t allowConversion=false, bool_t* valid=nullptr);  
     virtual std::string GetValueAsString(const bool_t allowConversion=false, bool_t* valid=nullptr);
+
+protected:
+    virtual bool_t ValidateAgainstSubschema(Element& schemaElement); 
 
 private:
     intmax_t GetLocalValueSigned(const bool_t allowConversion=false);
     uintmax_t GetLocalValueUnsigned(const bool_t allowConversion=false);
+    template <class integer_t> bool_t ValidateValueInRange(Element& schemaElement, 
+        integer_t currentValue, integer_t defaultMinimum, integer_t defaultMaximum);
 
     bool_t hasInternalValue;
     bool_t isSigned;

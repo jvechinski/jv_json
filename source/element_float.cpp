@@ -60,7 +60,32 @@ std::string ElementFloat::GetValueAsString(bool_t allowConversion, bool_t* valid
     
     return Element::GetValueAsString(allowConversion, valid);    
 }
+
+bool_t ElementFloat::ValidateAgainstSubschema(Element& schemaElement)
+{
+    // Call the base class validate against schema function.
+    // This will check all the common schema items, such as
+    // type.
+    bool_t returnValue = Element::ValidateAgainstSubschema(
+        schemaElement);
+        
+    // Check that the current value is within the proper range.
+    if (returnValue)
+    {
+        returnValue = ElementNumber::ValidateValueInRange<floatmax_t>
+            (schemaElement, this->GetValueAsFloatMax());
+    }
     
+    // Check that the current value is a multiple of another value.
+    if (returnValue)
+    {
+        returnValue = ElementNumber::ValidateValueIsMultipleOf<floatmax_t>
+            (schemaElement, this->GetValueAsFloatMax());
+    }    
+        
+    return returnValue;
+}
+   
 floatmax_t ElementFloat::GetLocalValue(void)
 {
     floatmax_t returnValue = 0.0;

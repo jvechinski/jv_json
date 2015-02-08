@@ -56,8 +56,13 @@ public:
     virtual bool_t IsValue(void) const;
          
     virtual std::string GetValueAsString(const bool_t allowConversion=false, bool_t* valid=nullptr);
+
+protected:
+    virtual bool_t ValidateAgainstSubschema(Element& schemaElement); 
     
 private:
+    bool_t ValidateLengthAgainstSubschema(Element& schemaElement);
+    
     std::string GetLocalValue(void);
 
     bool_t hasInternalValue;

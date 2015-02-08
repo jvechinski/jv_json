@@ -3,6 +3,8 @@
 #include "exception.hpp"
 #include "string_conversion.hpp"
 
+#include <cassert>
+
 namespace JVJSON_NAMESPACE_NAME
 {
 
@@ -103,6 +105,46 @@ uint64_t ElementInteger::GetValueAsUint64(bool_t allowConversion, bool_t* valid)
     return (uint64_t)this->GetLocalValueUnsigned(true);
 }
 
+int8_t ElementInteger::GetValueAsInt8(bool_t allowConversion, bool_t* valid)
+{
+    if (valid)
+    {
+        *valid = true;
+    }
+        
+    return (int8_t)this->GetLocalValueSigned(true);
+}
+
+int16_t ElementInteger::GetValueAsInt16(bool_t allowConversion, bool_t* valid)
+{
+    if (valid)
+    {
+        *valid = true;
+    }
+
+    return (int16_t)this->GetLocalValueSigned(true);
+}
+
+int32_t ElementInteger::GetValueAsInt32(bool_t allowConversion, bool_t* valid)
+{
+    if (valid)
+    {
+        *valid = true;
+    }
+        
+    return (int32_t)this->GetLocalValueSigned(true);
+}
+
+int64_t ElementInteger::GetValueAsInt64(bool_t allowConversion, bool_t* valid)
+{
+    if (valid)
+    {
+        *valid = true;
+    }
+        
+    return (int64_t)this->GetLocalValueSigned(true);
+}
+
 std::string ElementInteger::GetValueAsString(bool_t allowConversion, bool_t* valid)
 {
     if (allowConversion)
@@ -123,6 +165,49 @@ std::string ElementInteger::GetValueAsString(bool_t allowConversion, bool_t* val
     }
     
     return Element::GetValueAsString(allowConversion, valid);    
+}
+
+bool_t ElementInteger::ValidateAgainstSubschema(Element& schemaElement)
+{
+    // Call the base class validate against schema function.
+    // This will check all the common schema items, such as
+    // type.
+    bool_t returnValue = Element::ValidateAgainstSubschema(
+        schemaElement);
+        
+    // If there is a minimum value, use that as an indication as
+    // to whether this Element is an unsigned element or not.    
+    /// @todo Change signness and native type based on ranges.    
+    
+    if (returnValue)
+    {
+        if (this->isSigned)
+        {
+            returnValue = ElementNumber::ValidateValueInRange<intmax_t>(
+                schemaElement, this->GetValueAsIntMax(true));
+        }
+        else
+        {
+            returnValue = ElementNumber::ValidateValueInRange<uintmax_t>(
+                schemaElement, this->GetValueAsUintMax(true));            
+        }
+    }
+    
+    if (returnValue)
+    {
+        if (this->isSigned)
+        {
+            returnValue = ElementNumber::ValidateValueIsMultipleOf<intmax_t>(
+                schemaElement, this->GetValueAsIntMax(true));
+        }
+        else
+        {
+            returnValue = ElementNumber::ValidateValueIsMultipleOf<uintmax_t>(
+                schemaElement, this->GetValueAsUintMax(true));            
+        }
+    }
+        
+    return returnValue;
 }
 
 intmax_t ElementInteger::GetLocalValueSigned(const bool_t allowConversion)

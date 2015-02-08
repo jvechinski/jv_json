@@ -163,6 +163,11 @@ bool_t Element::IsContainer(void) const
 {
     return false;    
 }
+
+bool_t Element::IsReference(void) const
+{
+    return false;    
+}
  
 bool_t Element::GetValueAsBool(const bool_t allowConversion, bool_t* valid)
 {
@@ -214,6 +219,11 @@ uint64_t Element::GetValueAsUint64(const bool_t allowConversion, bool_t* valid)
     return 0U;
 }
 
+uintmax_t Element::GetValueAsUintMax(const bool_t allowConversion, bool_t* valid)
+{
+    return this->GetValueAsUint64(allowConversion, valid);
+}
+
 int8_t Element::GetValueAsInt8(const bool_t allowConversion, bool_t* valid)
 {
     if (valid)
@@ -250,6 +260,11 @@ int64_t Element::GetValueAsInt64(const bool_t allowConversion, bool_t* valid)
     return 0;
 }
 
+intmax_t Element::GetValueAsIntMax(const bool_t allowConversion, bool_t* valid)
+{
+    return this->GetValueAsInt64(allowConversion, valid);
+}
+
 float32_t Element::GetValueAsFloat32(const bool_t allowConversion, bool_t* valid)
 {
     if (valid)
@@ -266,6 +281,11 @@ float64_t Element::GetValueAsFloat64(const bool_t allowConversion, bool_t* valid
         *valid = false;
     }
     return 0.0;
+}
+
+floatmax_t Element::GetValueAsFloatMax(const bool_t allowConversion, bool_t* valid)
+{
+    return this->GetValueAsFloat64(allowConversion, valid);
 }
 
 std::string Element::GetValueAsString(const bool_t allowConversion, bool_t* valid)
@@ -293,6 +313,31 @@ void Element::SetValueWithBool(bool_t valueVariable, bool_t allowConversion, boo
 std::size_t Element::GetSize(void) const
 {
     return 0;
+}
+
+void Element::GetValue(bool_t& valueVariable, const bool_t allowConversion)
+{
+    valueVariable = this->GetValueAsBool(allowConversion);
+}
+
+void Element::GetValue(uint64_t& valueVariable, const bool_t allowConversion)
+{
+    valueVariable = this->GetValueAsUint64(allowConversion);
+}
+
+void Element::GetValue(int64_t& valueVariable, const bool_t allowConversion)
+{
+    valueVariable = this->GetValueAsInt64(allowConversion);
+}
+
+void Element::GetValue(float32_t& valueVariable, const bool_t allowConversion)
+{
+    valueVariable = this->GetValueAsFloat32(allowConversion);
+}
+
+void Element::GetValue(float64_t& valueVariable, const bool_t allowConversion)
+{
+    valueVariable = this->GetValueAsFloat64(allowConversion);
 }
 
 void Element::GetValue(std::string& valueVariable, const bool_t allowConversion)
@@ -365,6 +410,31 @@ std::string Element::GetAddress(bool_t documentPath, bool_t recursiveCall)
         }
         return address;
     }
+}
+
+int32_t Element::CompareElementValues(Element& otherElement, const bool_t allowConversion)
+{
+    int32_t returnValue = 0;
+    
+    if (!allowConversion)
+    {
+        if (this->GetType() != otherElement.GetType())
+        {
+            returnValue = -1;
+        }
+    }
+    
+    return returnValue;
+}
+
+bool_t Element::ElementValuesAreEqual(Element& otherElement, const bool_t allowConversion)
+{
+    return (this->CompareElementValues(otherElement, allowConversion) == 0);
+}
+
+bool_t Element::ElementValuesAreNotEqual(Element& otherElement, const bool_t allowConversion)
+{
+    return (this->CompareElementValues(otherElement, allowConversion) != 0);
 }
 
 void Element::AssignSchemasToChildElements(void)

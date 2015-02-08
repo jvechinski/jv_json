@@ -42,7 +42,7 @@ t.chk(r'root.GetElement("type_null").IsValue() == false')
 t.chk(r'root.HasElement("type_integer") == true')
 t.exe(r'Element& integerElement = root.GetElement("type_integer");')
 t.chk(r'integerElement.GetType() == ELEMENT_TYPE_INTEGER')
-t.chk(r'integerElement.GetValueAsUint32() == 5U')
+t.chk(r'integerElement.GetValueAsUint32() == 55U')
 t.chk(r'integerElement.IsValue() == true')
 t.chk(r'integerElement.IsNumber() == true')
 

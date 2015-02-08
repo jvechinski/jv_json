@@ -53,11 +53,16 @@ public:
     virtual ElementType GetType(void) const;
 
     virtual float32_t GetValueAsFloat32(bool_t allowConversion=false, bool_t* valid=nullptr);
-    virtual float64_t GetValueAsFloat64(bool_t allowConversion=false, bool_t* valid=nullptr);            
+    virtual float64_t GetValueAsFloat64(bool_t allowConversion=false, bool_t* valid=nullptr);                
     virtual std::string GetValueAsString(const bool_t allowConversion=false, bool_t* valid=nullptr);
+
+protected:
+    virtual bool_t ValidateAgainstSubschema(Element& schemaElement); 
     
 private:
     floatmax_t GetLocalValue(void);
+    bool_t ValidateValueInRange(Element& schemaElement, floatmax_t currentValue);
+    bool_t ValidateValueIsMultipleOf(Element& schemaElement, floatmax_t currentValue);
 
     bool_t hasInternalValue;
     NativeType nativeType;

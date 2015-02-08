@@ -60,7 +60,7 @@ def create_simple_json_file():
                         'type_bool_false': False,
                         'type_null': None,
                         'type_array': [1, 2.0, 'hello', {'deep_bool_true': True, 'deep_string': 'jv_json'}, True, False],
-                        'type_integer': 5, 
+                        'type_integer': 55, 
                         'type_float': -3.14,
                         'type_float_exponent': 4e-24,
                         'type_string': 'world'}, 

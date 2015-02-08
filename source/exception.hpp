@@ -36,12 +36,45 @@
 #define JVJSON_EXCEPTION_HPP
 
 #include "global.hpp"
+#include "types.hpp"
+#include "element.hpp"
 #include <stdexcept>
 
 namespace JVJSON_NAMESPACE_NAME
 {
 
 void RaiseException(const std::runtime_error& e);
+
+class GeneralError : public std::runtime_error
+{
+public:
+    bool_t HasElement(void);
+    Element& GetElement(void);
+private:
+    Element* element;
+};
+
+class ParseError : public GeneralError
+{
+    
+};
+
+class GetError : public GeneralError
+{
+    
+};
+
+class SetError : public GeneralError
+{
+    
+};
+
+class SchemaError : public GeneralError
+{
+
+private:
+    Element* schemaElement;
+};
 
 }
 

@@ -81,26 +81,32 @@ public:
     void GetValue(int16_t& valueVariable, const bool_t allowConversion=false);
     void GetValue(int32_t& valueVariable, const bool_t allowConversion=false);
     void GetValue(int64_t& valueVariable, const bool_t allowConversion=false);
+    void GetValue(float32_t& valueVariable, const bool_t allowConversion=false);
+    void GetValue(float64_t& valueVariable, const bool_t allowConversion=false);
     void GetValue(std::string& valueVariable, const bool_t allowConversion=false);
-    
+        
     virtual std::size_t GetSize(void) const;
     
     virtual bool_t IsNull(void) const;
     virtual bool_t IsValue(void) const;
     virtual bool_t IsNumber(void) const;
     virtual bool_t IsContainer(void) const;
+    virtual bool_t IsReference(void) const;
     
     virtual bool_t GetValueAsBool(const bool_t allowConversion=false, bool_t* valid=nullptr);    
     virtual uint8_t GetValueAsUint8(const bool_t allowConversion=false, bool_t* valid=nullptr);    
     virtual uint16_t GetValueAsUint16(const bool_t allowConversion=false, bool_t* valid=nullptr);
     virtual uint32_t GetValueAsUint32(const bool_t allowConversion=false, bool_t* valid=nullptr);
-    virtual uint64_t GetValueAsUint64(bool_t allowConversion=false, bool_t* valid=nullptr);
-    virtual int8_t GetValueAsInt8(bool_t allowConversion=false, bool_t* valid=nullptr);    
-    virtual int16_t GetValueAsInt16(bool_t allowConversion=false, bool_t* valid=nullptr);
-    virtual int32_t GetValueAsInt32(bool_t allowConversion=false, bool_t* valid=nullptr);
-    virtual int64_t GetValueAsInt64(bool_t allowConversion=false, bool_t* valid=nullptr);
-    virtual float32_t GetValueAsFloat32(bool_t allowConversion=false, bool_t* valid=nullptr);
-    virtual float64_t GetValueAsFloat64(bool_t allowConversion=false, bool_t* valid=nullptr);
+    virtual uint64_t GetValueAsUint64(const bool_t allowConversion=false, bool_t* valid=nullptr);
+    uintmax_t GetValueAsUintMax(const bool_t allowConversion=false, bool_t* valid=nullptr);
+    virtual int8_t GetValueAsInt8(const bool_t allowConversion=false, bool_t* valid=nullptr);    
+    virtual int16_t GetValueAsInt16(const bool_t allowConversion=false, bool_t* valid=nullptr);
+    virtual int32_t GetValueAsInt32(const bool_t allowConversion=false, bool_t* valid=nullptr);
+    virtual int64_t GetValueAsInt64(const bool_t allowConversion=false, bool_t* valid=nullptr);
+    intmax_t GetValueAsIntMax(const bool_t allowConversion=false, bool_t* valid=nullptr);
+    virtual float32_t GetValueAsFloat32(const bool_t allowConversion=false, bool_t* valid=nullptr);
+    virtual float64_t GetValueAsFloat64(const bool_t allowConversion=false, bool_t* valid=nullptr);
+    floatmax_t GetValueAsFloatMax(const bool_t allowConversion=false, bool_t* valid=nullptr);
     virtual std::string GetValueAsString(const bool_t allowConversion=false, bool_t* valid=nullptr);
     
     operator bool();
@@ -114,6 +120,10 @@ public:
     std::string GetName(void);
     std::size_t GetIndex(void);
     std::string GetAddress(bool_t documentPath=false, bool_t recursiveCall=false);    
+
+    virtual int32_t CompareElementValues(Element& otherElement, const bool_t allowConversion=false);
+    bool_t ElementValuesAreEqual(Element& otherElement, const bool_t allowConversion=false);
+    bool_t ElementValuesAreNotEqual(Element& otherElement, const bool_t allowConversion=false);
     
     bool_t ValidateAgainstSchema(bool_t raiseException=false);
     virtual void AssignSchemasToChildElements(void);
