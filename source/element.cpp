@@ -654,6 +654,23 @@ bool_t Element::ValidateValueAgainstSchemaEnum(Element& schemaElement)
     {
         // Enum values should be in an array.
         assert(enumElement.GetType() == ELEMENT_TYPE_ARRAY);
+        
+        // Walk through and see if this element matches
+        // a value in the enum element array.  If not, validation
+        // fails.
+        bool_t foundValueMatch = false;
+        for (Element::Iterator i = enumElement.Begin();
+             (i != enumElement.End()) && (!foundValueMatch);
+             i++)
+        {
+            foundValueMatch = this->ElementValuesAreEqual(
+                i.GetElement());              
+        }
+        
+        if (!foundValueMatch)
+        {
+            returnValue = false;
+        }
     }
     
     return returnValue;

@@ -2,7 +2,7 @@ from testgen.cpp.unittest import Target, case, run
 
 import _common
 
-t = Target('good_schema_string')                               
+t = Target('good_schema_array')                               
 
 t.globalcode(_common.global_code())
 

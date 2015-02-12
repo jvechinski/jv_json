@@ -47,12 +47,12 @@ uint8_t ElementNull::GetValueAsUint8(bool_t allowConversion, bool_t* valid)
 
 uint16_t ElementNull::GetValueAsUint16(bool_t allowConversion, bool_t* valid)
 {
-    return (uint16_t)this->GetValueAsUint8();
+    return (uint16_t)this->GetValueAsUint8(allowConversion, valid);
 }
 
 uint32_t ElementNull::GetValueAsUint32(bool_t allowConversion, bool_t* valid)
 {
-    return (uint32_t)this->GetValueAsUint8();
+    return (uint32_t)this->GetValueAsUint8(allowConversion, valid);
 }
 
 std::string ElementNull::GetValueAsString(bool_t allowConversion, bool_t* valid)

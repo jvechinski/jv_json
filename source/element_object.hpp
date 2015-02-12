@@ -65,7 +65,14 @@ public:
 protected:
     virtual Element& GetElementPrivate(const std::string& elementName, bool_t* exists);
     
+    virtual bool_t ValidateAgainstSubschema(Element& schemaElement); 
+    
 private:
+    bool_t ValidateRequiredProperties(Element& schemaElement);
+    bool_t ValidateAdditionalProperties(Element& schemaElement);    
+    bool_t ValidateSizeAgainstSubschema(Element& schemaElement);
+    bool_t ValidatePropertyDependencies(Element& schemaElement);
+
     JVJSON_OBJECT_TYPE map;
 
 };

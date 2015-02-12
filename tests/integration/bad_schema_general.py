@@ -26,4 +26,14 @@ schema['properties']['type_array']['items'][3]['properties']['deep_string']['typ
 _common.bad_schema_case(t, schema,
     'bad_child_type_2', 'Deeply nested child element type is incorrect')
 
+schema = _common.get_simple_json_schema()
+schema['properties']['type_float'] = {'enum': ['hello', 55, True, None]}
+_common.bad_schema_case(t, schema,
+    'bad_enum_1', 'Enum problem, no elements in enum match type')
+
+schema = _common.get_simple_json_schema()
+schema['properties']['type_integer'] = {'enum': [1,2,3,4,5,6]}
+_common.bad_schema_case(t, schema,
+    'bad_enum_2', 'Enum problem, no elements in enum match value')
+
 run()

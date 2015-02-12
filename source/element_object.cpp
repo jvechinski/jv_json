@@ -3,6 +3,7 @@
 #include "exception.hpp"
 
 #include <cassert>
+#include <set>
 
 namespace JVJSON_NAMESPACE_NAME
 {
@@ -119,6 +120,207 @@ void ElementObject::AssignSchemasToChildElements(void)
             }
         }
     }
+}
+
+bool_t ElementObject::ValidateAgainstSubschema(Element& schemaElement)
+{
+    // Call the base class validate against schema function.
+    // This will check all the common schema items, such as
+    // type.
+    bool_t returnValue = Element::ValidateAgainstSubschema(
+        schemaElement);
+
+    // Validate that all required properties exist in the object if this
+    // is specified.
+    if (returnValue)
+    {
+        returnValue = this->ValidateRequiredProperties(schemaElement);
+    }
+        
+    // Validate that no additional properties exist in the object if this
+    // is specified.
+    if (returnValue)
+    {
+        returnValue = this->ValidateAdditionalProperties(schemaElement);
+    }
+
+    // Validate the object size.
+    if (returnValue)
+    {
+        returnValue = this->ValidateSizeAgainstSubschema(schemaElement);
+    }   
+    
+    // Validate any dependent properties.
+    if (returnValue)
+    {
+        returnValue = this->ValidatePropertyDependencies(schemaElement);
+    }    
+    
+    return returnValue;
+}
+
+bool_t ElementObject::ValidateRequiredProperties(Element& schemaElement)
+{
+    bool_t hasRequiredProperties;
+    bool_t returnValue = true;
+    
+    Element& requiredPropertiesElement = schemaElement.GetElement(
+        "required", &hasRequiredProperties); 
+        
+    if (hasRequiredProperties)
+    {
+        assert(requiredPropertiesElement.GetType() == ELEMENT_TYPE_ARRAY);
+        
+        // Make sure each of the required properties is actually
+        // in the object.
+        bool_t missingRequiredProperty = false;
+        for (Element::Iterator i = requiredPropertiesElement.Begin();
+             ((i != requiredPropertiesElement.End()) && (!missingRequiredProperty));
+             i++)
+        {
+            if (!this->HasElement((*i).GetValueAsString()))
+            {
+                missingRequiredProperty = true;
+            }
+        }        
+        
+        if (missingRequiredProperty)
+        {
+            returnValue = false;
+        }
+    }
+    
+    return returnValue;
+}
+
+bool_t ElementObject::ValidateAdditionalProperties(Element& schemaElement)
+{
+    bool_t hasProperties;
+    bool_t hasAdditionalProperties;
+    bool_t returnValue = true;
+    
+    Element& additionalPropertiesElement = schemaElement.GetElement(
+        "additionalProperties", &hasAdditionalProperties); 
+        
+    if ((hasAdditionalProperties) && 
+        (additionalPropertiesElement.GetType() == ELEMENT_TYPE_BOOLEAN) &&
+        (additionalPropertiesElement.GetValueAsBool() == false))
+    {
+        // Create a set with all the properties present in the
+        // object.
+        std::set<std::string> unmatchedProperties;
+        for (Element::Iterator i = this->Begin();
+             i != this->End();
+             i++)
+        {
+            unmatchedProperties.insert(i.GetName());
+        }
+        
+        Element& propertiesElement = schemaElement.GetElement(
+            "properties", &hasProperties);            
+            
+        // If additionalProperties is false, all properties must be
+        // in either the properties or patternProperties objects.
+        if (hasProperties)
+        {
+            assert(propertiesElement.GetType() == ELEMENT_TYPE_OBJECT);
+            
+            // Remove the element from the unmatched properties
+            // list. 
+            for (Element::Iterator i = propertiesElement.Begin();
+                 i != propertiesElement.End();
+                 i++)
+            {
+                unmatchedProperties.erase(i.GetName());
+            }
+        }
+        
+        // If there are any unmatched properties, the return value
+        // is false.
+        if (!unmatchedProperties.empty())
+        {
+            returnValue = false;
+        }
+    }
+    
+    return returnValue;
+}
+
+bool_t ElementObject::ValidateSizeAgainstSubschema(Element& schemaElement)
+{
+    bool_t hasMinProperties;
+    bool_t hasMaxProperties;
+    bool_t returnValue = true;
+    
+    // Check the object size against min and max items values, if 
+    // present.
+    Element& minPropertiesElement = schemaElement.GetElement(
+        "minProperties", &hasMinProperties);
+    Element& maxPropertiesElement = schemaElement.GetElement(
+        "maxProperties", &hasMaxProperties);        
+    if ((hasMinProperties) || (hasMaxProperties))
+    {
+        std::size_t objectSize = this->GetSize();
+                
+        if ((hasMinProperties) && 
+            (minPropertiesElement.IsNumber()) &&
+            (objectSize < minPropertiesElement.GetValueAsUint32(true)))
+        {
+            returnValue = false;
+        }
+                
+        if ((hasMaxProperties) && 
+            (maxPropertiesElement.IsNumber()) &&
+            (objectSize > maxPropertiesElement.GetValueAsUint32(true)))
+        {
+            returnValue = false;
+        }
+    }
+    
+    return returnValue;
+}
+
+bool_t ElementObject::ValidatePropertyDependencies(Element& schemaElement)
+{
+    bool_t hasPropertyDependencies;
+    bool_t returnValue = true;
+    
+    Element& dependenciesElement = schemaElement.GetElement(
+        "dependencies", &hasPropertyDependencies); 
+        
+    if (hasPropertyDependencies)
+    {
+        assert(dependenciesElement.GetType() == ELEMENT_TYPE_OBJECT);
+        
+        // For each dependencies element, see if we've got an array
+        // of other property dependencies.
+        // Note that this can also be an object which contains extra
+        // schema items to be checked.  This is handled differently.
+        for (Element::Iterator i = dependenciesElement.Begin();
+             (i != dependenciesElement.End()) && (returnValue);
+             i++)
+        {
+            // There is only more to do if we have the dependent
+            // property, and the element is an array.
+            if ((this->HasElement(i.GetName())) &&
+                ((*i).GetType() == ELEMENT_TYPE_ARRAY))
+            {
+                // For each item in the array, make sure we have 
+                // the property in question.
+                for (Element::Iterator j = (*i).Begin();
+                     (j != (*i).End()) && (returnValue);
+                     j++)                
+                {
+                    if (!this->HasElement((*j).GetValueAsString()))
+                    {
+                        returnValue = false;
+                    }
+                }
+            }
+        }        
+    }
+    
+    return returnValue;
 }
     
 };
