@@ -20,17 +20,18 @@ def run_test(test_filename):
         
     return False
 
-def run_all_tests():
+def run_tests(test_files=[]):
     test_result_list = []
     
     for dirpath, dirnames, filenames in os.walk(test_dir):
         for filename in filenames:
             if filename.endswith('.py') and not filename.startswith('_'):
-                test_path = os.path.join(dirpath, filename)
-                test_result = {'name': os.path.relpath(
-                    test_path, test_dir)}
-                test_result['result'] = run_test(test_path)                
-                test_result_list.append(test_result)
+                if not test_files or filename in test_files:
+                    test_path = os.path.join(dirpath, filename)
+                    test_result = {'name': os.path.relpath(
+                        test_path, test_dir)}
+                    test_result['result'] = run_test(test_path)                
+                    test_result_list.append(test_result)
                 
     print('='*70)
     all_tests_pass = True
@@ -48,4 +49,7 @@ def run_all_tests():
         print('FAIL')
 
 if __name__ == "__main__":
-    run_all_tests()
+    test_list = sys.argv[1:]    
+    test_list = [os.path.basename(x).lower() for x in test_list]
+    
+    run_tests(test_list)

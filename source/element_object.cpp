@@ -67,6 +67,13 @@ void ElementObject::AssignSchemasToChildElements(void)
         i.GetElement().SetSchemaElement(nullptr);
     }
     
+    // If no schema element has been assigned to this element,
+    // there is nothing to do.
+    if (this->GetSchemaElement() == nullptr)
+    {
+        return;
+    }    
+    
     Element& propertiesElement = this->schemaElement->GetElement(
         "properties", &hasElement);
     
@@ -90,8 +97,19 @@ void ElementObject::AssignSchemasToChildElements(void)
             if (hasElement)
             {
                 childElement.SetSchemaElement(&(i.GetElement()));                
-                childElement.AssignSchemasToChildElements();
             }
+            // If there is no child element, but a default value has 
+            // been specified in the schema element, we add a new child 
+            // using the default element.            
+            else if (i.GetElement().HasElement("default"))
+            {
+                /// @todo Should use copy constructor / copy function
+                /// to make a deep copy of the default element.
+                Element& newChildElement = 
+                    i.GetElement().GetElement("default");
+                this->AddElement(propertyName, newChildElement);
+                newChildElement.SetSchemaElement(&(i.GetElement())); 
+            }            
         }
     }
     
@@ -116,10 +134,17 @@ void ElementObject::AssignSchemasToChildElements(void)
             {
                 i.GetElement().SetSchemaElement(
                     &additionalPropertiesElement);
-                i.GetElement().AssignSchemasToChildElements();
             }
         }
     }
+    
+    // Assign schema elements in all child elements.
+    for (Element::Iterator i = this->Begin();
+         i != this->End();
+         i++)
+    {
+        i.GetElement().AssignSchemasToChildElements();
+    }        
 }
 
 bool_t ElementObject::ValidateAgainstSubschema(Element& schemaElement)
