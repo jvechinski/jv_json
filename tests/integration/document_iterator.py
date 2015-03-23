@@ -20,7 +20,7 @@ for (Document::Iterator i = document.Begin();
      i++)
 {
     count += 1;
-    printf("%s (depth %d)=%s\n", i.GetElement().GetAddress().c_str(), 
+    printf("%s (depth %d)=%s\n", i.GetElement().GetPath().c_str(), 
         i.GetDepth(),
         i.GetElement().GetValueAsString(true).c_str());
 }
@@ -39,7 +39,7 @@ for (Document::Iterator i = document.Begin(true);
      i++)
 {
     count += 1;
-    printf("%s (depth %d) (parent end %d)=%s\n", (*i).GetAddress().c_str(), 
+    printf("%s (depth %d) (parent end %d)=%s\n", (*i).GetPath().c_str(), 
         i.GetDepth(),
         i.IsParentEndState(),
         (*i).GetValueAsString(true).c_str());

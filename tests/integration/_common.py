@@ -28,6 +28,24 @@ def read_document_case(t, read_schema=False):
         t.exe(r'result = document.ReadFromFile("..\\..\\simple.json");')
     t.chk('result==true')
 
+
+def read_custom_document_case(t, document=None, name='', description='', read_schema=False, schema=None):
+    document_filename = create_simple_json_document(document)
+    schema_filename = create_simple_json_schema(schema)
+    
+    case(name, description)
+
+    t.dec('bool_t result=false;')
+
+    if read_schema:
+        t.exe(r'result = document.ReadFromFile("..\\..\\{}", '
+              r'"..\\..\\{}");'.format(document_filename, schema_filename))
+    else:
+        t.exe(r'result = document.ReadFromFile("..\\..\\{}");'.format(
+              document_filename))
+              
+    t.chk('result==true')
+
 def bad_schema_case(t, schema=None, name='', description='', document=None):
     document_filename = create_simple_json_document(document)
     schema_filename = create_simple_json_schema(schema)

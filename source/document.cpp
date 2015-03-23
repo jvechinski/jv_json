@@ -1,6 +1,7 @@
 #include <cassert>
 #include <cstring>
 #include <fstream>
+#include <sstream>
 
 #include <stdio.h>
 
@@ -11,6 +12,7 @@
 #include "element_integer.hpp"
 #include "element_null.hpp"
 #include "element_object.hpp"
+#include "element_reference.hpp"
 #include "element_string.hpp"
 #include "cJSON/cJSON.h"
 
@@ -64,10 +66,7 @@ Element* Document::InternalReadFromJsonFile(std::string filename)
     delete buffer;
     
     Element* rootElement = this->RecursiveParseCjsonItems(root);
-    
-    // Allocate storage for the Element values.
-    this->AllocateValueTable();
-    
+       
     cJSON_Delete(root);
     
     return rootElement;
@@ -101,6 +100,8 @@ bool_t Document::ReadFromFile(const char* filename, const char* schemaFilename)
         returnValue = this->PairWithSchemaElements();
         returnValue = this->ValidateAgainstSchema();
     }
+    
+    this->HandleJsonReferences();
     
     return returnValue;
 }   
@@ -208,11 +209,6 @@ Element* Document::ConstructElementFromCjsonItem(cJSON* item)
     return newElement;
 }
 
-void Document::AllocateValueTable(void)
-{
-    return;
-}
-
 bool_t Document::ValidateAgainstSchema(bool_t raiseException)
 {
     bool_t returnValue = true;
@@ -244,6 +240,151 @@ bool_t Document::PairWithSchemaElements(void)
     }
     
     return true;
+}
+
+void Document::HandleJsonReferences(void)
+{
+    Document::Iterator i = this->Begin();
+    
+    while (i != this->End())
+    {
+        // Looking for an object with a string member named 
+        // $ref.  This special combination signifies a JSON
+        // reference.  If this is found, we create a JSON reference
+        // element to replace the object.
+        Element& element = i.GetElement();
+        if (
+            (element.GetType() == ELEMENT_TYPE_OBJECT) &&
+            (element.HasElement("$ref")) &&
+            (element.GetElement("$ref").GetType() == ELEMENT_TYPE_STRING)
+           )
+        {
+            ElementReference* referenceElement = new ElementReference(
+                element.GetElement("$ref").GetValueAsString(),
+                this);
+                
+            if (element.parentElement != nullptr)
+            {
+                element.parentElement->ReplaceElement(element, *referenceElement);
+            }
+        }
+        
+        i++;
+    }
+}
+
+bool_t Document::HasElement(const std::string& elementName)
+{
+    bool_t elementExists = false;
+    
+    this->GetElement(elementName, &elementExists);
+    
+    return elementExists;
+}
+
+bool_t Document::HasElement(const uint32_t elementIndex)
+{
+    bool_t elementExists = false;
+    
+    this->GetElement(elementIndex, &elementExists);
+    
+    return elementExists;
+}
+
+static bool_t StringStartsWith(const std::string& s1, const std::string& s2) 
+{
+    return (s2.size() <= s1.size() && s1.compare(0, s2.size(), s2) == 0);
+}
+    
+Element& Document::GetElement(const std::string& elementName, bool_t* exists)
+{
+    // Are they referencing an element in this document using 
+    // a path / URI?    
+    if (StringStartsWith(elementName, "#/"))
+    {
+        return this->GetElementByPath(elementName, exists);
+    }
+    
+    if (this->rootElement != nullptr)
+    {
+        return this->rootElement->GetElement(elementName, exists);
+    }
+    else
+    {
+        if (exists != nullptr)
+        {
+            *exists = false;
+        }
+    }
+    
+    return this->GetUndefinedElement();
+}
+
+Element& Document::GetElement(const uint32_t elementIndex, bool_t* exists)
+{
+    if (this->rootElement != nullptr)
+    {
+        return this->rootElement->GetElement(elementIndex, exists);
+    }
+
+    if (exists != nullptr)
+    {
+        *exists = false;
+    }
+    
+    return this->GetUndefinedElement();
+}
+
+void StringSplit(std::vector<std::string>& pieces, const std::string& stringToSplit, char delimiter) 
+{
+    std::stringstream ss(stringToSplit); 
+    std::string piece;
+  
+    while (std::getline(ss, piece, delimiter)) 
+    {
+        pieces.push_back(piece);
+    }
+}
+
+Element& Document::GetElementByPath(const std::string& path, bool_t* exists)
+{
+    std::vector<std::string> pathParts;
+        
+    if (exists != nullptr)
+    {
+        *exists = false;
+    }
+    
+    StringSplit(pathParts, path, '/');
+    
+    if (pathParts.size() >= 1)
+    {
+        Element* currentElement = &this->GetRootElement();
+        pathParts.erase(pathParts.begin());
+        
+        while (pathParts.size())
+        {
+            bool_t nextElementExists;
+            Element& nextElement = currentElement->GetElement(pathParts[0], &nextElementExists);
+            
+            if (!nextElementExists)
+            {
+                return this->GetUndefinedElement();    
+            }
+            
+            pathParts.erase(pathParts.begin());
+            currentElement = &nextElement;
+        }
+        
+        if (exists != nullptr)
+        {
+            *exists = true;
+        }
+        
+        return *currentElement;
+    }
+
+    return this->GetUndefinedElement();    
 }
     
 }

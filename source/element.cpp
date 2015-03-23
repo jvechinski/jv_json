@@ -54,7 +54,11 @@ Element& Element::GetElement(const std::string& elementName, bool_t* exists)
         if (!local_exists) 
         {
             RaiseException(
-                std::runtime_error("Get element from %s using name %s failed"));
+                std::runtime_error(std::string("Get element from ") + 
+                                   this->GetPath() + 
+                                   " using name " +
+                                   elementName +
+                                   " failed"));
         }
     }
     else
@@ -91,7 +95,7 @@ Element& Element::operator[](const char* elementName)
 {
     bool_t unused = false;
     
-    return this->GetElementPrivate(elementName, &unused);
+    return this->GetElementPrivate(std::string(elementName), &unused);
 }
 
 Element& Element::operator[](const std::string& elementName)
@@ -110,10 +114,18 @@ Element& Element::operator[](const uint32_t elementIndex)
 
 Element& Element::GetElementPrivate(const std::string& elementName, bool_t* exists)
 {
-    if ((this->schemaElement) && (elementName == std::string("schema")))
+    if ((this->schemaElement) && (elementName == std::string("$schema")))
     {
         *exists = true;
         return *(this->schemaElement);
+    }
+    
+    // Special case... if the string contains a '/' assume it is 
+    // specifying a path / URI relative to the overall document.  We 
+    // pass these back to the parent document for processing.
+    if (elementName.find("#/") != std::string::npos)
+    {
+        return this->document->GetElement(elementName, exists);
     }
 
     *exists = false;
@@ -142,6 +154,51 @@ void Element::AddElement(Element& element)
 {
     element.document = this->document;
     element.parentElement = this;
+}
+
+void Element::RemoveElement(const Element& elementToRemove)
+{
+    RaiseException(
+        std::runtime_error("Cannot remove child element by reference from element"));
+}
+
+void Element::RemoveElement(const std::string& elementName, Element& element)
+{
+    RaiseException(
+        std::runtime_error("Cannot remove child element by name from element"));     
+}
+
+void Element::RemoveElement(const uint32_t elementIndex, Element& element)
+{
+    RaiseException(
+        std::runtime_error("Cannot remove child element by index from element"));         
+}
+
+void Element::ReplaceElement(Element& elementToReplace, Element& element)
+{
+    if (this->IsContainer())
+    {
+        elementToReplace.document = nullptr;
+        elementToReplace.parentElement = nullptr;  
+        this->AddElement(element);
+    }
+    else
+    {
+        RaiseException(
+            std::runtime_error("Cannot replace child element by reference in element"));             
+    }
+}
+
+void Element::ReplaceElement(const std::string& elementName, Element& element)
+{
+    RaiseException(
+        std::runtime_error("Cannot replace child element by name in element"));             
+}
+
+void Element::ReplaceElement(const uint32_t elementIndex, Element& element)
+{
+    RaiseException(
+        std::runtime_error("Cannot replace child element by index in element"));         
 }
  
 bool_t Element::IsNull(void) const
@@ -387,28 +444,28 @@ std::size_t Element::GetIndex(void)
     return 0U;
 }
 
-std::string Element::GetAddress(bool_t documentPath, bool_t recursiveCall)
+std::string Element::GetPath(bool_t documentPath, bool_t recursiveCall)
 {
     if (this->parentElement)
     {
-        std::string address = this->parentElement->GetAddress(documentPath, true);
-        address.append("/");
-        address.append(this->GetName());
-        return address;
+        std::string path = this->parentElement->GetPath(documentPath, true);
+        path.append("/");
+        path.append(this->GetName());
+        return path;
     }
     else
     {
-        std::string address;
+        std::string path;
         if ((documentPath) && (this->document))
         {
-            address.append(this->document->GetFilename());
+            path.append(this->document->GetFilename());
         }
-        address.append("#");
+        path.append("#");
         if (!recursiveCall)
         {
-            address.append("/");
+            path.append("/");
         }
-        return address;
+        return path;
     }
 }
 

@@ -72,6 +72,14 @@ public:
     virtual void AddElement(const std::string& elementName, Element& element);
     virtual void AddElement(const uint32_t elementIndex, Element& element);
     
+    virtual void RemoveElement(const Element& elementToRemove);
+    virtual void RemoveElement(const std::string& elementName, Element& element);
+    virtual void RemoveElement(const uint32_t elementIndex, Element& element);    
+
+    virtual void ReplaceElement(Element& elementToReplace, Element& element);
+    virtual void ReplaceElement(const std::string& elementName, Element& element);
+    virtual void ReplaceElement(const uint32_t elementIndex, Element& element);
+    
     void GetValue(bool_t& valueVariable, const bool_t allowConversion=false);
     void GetValue(uint8_t& valueVariable, const bool_t allowConversion=false);
     void GetValue(uint16_t& valueVariable, const bool_t allowConversion=false);
@@ -119,7 +127,7 @@ public:
     
     std::string GetName(void);
     std::size_t GetIndex(void);
-    std::string GetAddress(bool_t documentPath=false, bool_t recursiveCall=false);    
+    std::string GetPath(bool_t documentPath=false, bool_t recursiveCall=false);    
 
     virtual int32_t CompareElementValues(Element& otherElement, const bool_t allowConversion=false);
     bool_t ElementValuesAreEqual(Element& otherElement, const bool_t allowConversion=false);

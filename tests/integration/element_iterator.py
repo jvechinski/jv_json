@@ -27,7 +27,7 @@ for (Element::Iterator i = root.Begin();
     count += 1;
     printf("%s=%s\n", i.GetName().c_str(), 
         i.GetElement().GetValueAsString(true).c_str());
-    printf("%s=%s\n", (*i).GetAddress(true).c_str(), 
+    printf("%s=%s\n", (*i).GetPath(true).c_str(), 
         (*i).GetValueAsString(true).c_str());
     assert(&root == &(i.GetParentElement()));
 }

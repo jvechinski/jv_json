@@ -1,8 +1,12 @@
 //////////////////////////////////////////////////////////////////////
 /// @file
 ///
-/// Header file for JSON Element Object class.  Represents a JSON
-/// Object (mapping, dictionary).  
+/// Header file for JSON Element Reference class.  Represents a JSON
+/// Reference.  
+///
+/// The JSON reference syntax is described / proposed by the 
+/// following draft:
+/// https://tools.ietf.org/html/draft-pbryan-zyp-json-ref-03
 ///
 /// Part of the JV JSON parser project, 
 /// https://github.com/jvechinski/jv_json
@@ -10,7 +14,7 @@
 ///
 /// @ingroup jv_json
 ///
-/// Copyright (c) 2014 Jeremy S. Vechinski
+/// Copyright (c) 2015 Jeremy S. Vechinski
 ///
 /// Permission is hereby granted, free of charge, to any person 
 /// obtaining a copy of this software and associated documentation 
@@ -33,12 +37,13 @@
 /// SOFTWARE.
 //////////////////////////////////////////////////////////////////////
 
-#if !defined(JVJSON_ELEMENT_OBJECT_HPP)
-#define JVJSON_ELEMENT_OBJECT_HPP
+#if !defined(JVJSON_ELEMENT_REFERENCE_HPP)
+#define JVJSON_ELEMENT_REFERENCE_HPP
 
 #include "global.hpp"
 #include "types.hpp"
 #include "element.hpp"
+#include "element_string.hpp"
 
 #include <string>
 
@@ -47,36 +52,33 @@ namespace JVJSON_NAMESPACE_NAME
     
 /// This class represents an object (mapping, dictionary) in a JSON 
 /// document.
-class ElementObject : public Element
+class ElementReference : public Element
 {
-
-/// Allow the generic element iterator class to access private members.    
-friend class Element::Iterator;    
-    
+   
 public:
+    ElementReference(const std::string& referencePath, Document* document=nullptr);
+
     virtual ElementType GetType(void) const;
-    virtual bool_t IsContainer(void) const;
+    virtual NativeType GetNativeType(void) const;
 
-    virtual void AddElement(const std::string& elementName, Element& element);    
-    virtual void ReplaceElement(Element& elementToReplace, Element& element);
-    
     virtual std::size_t GetSize(void) const;
-
-    virtual void AssignSchemasToChildElements(void);
     
-protected:
-    virtual Element& GetElementPrivate(const std::string& elementName, bool_t* exists);
+    virtual bool_t IsNull(void) const;
+    virtual bool_t IsValue(void) const;
+    virtual bool_t IsNumber(void) const;
+    virtual bool_t IsContainer(void) const;
+    virtual bool_t IsReference(void) const;
     
-    virtual bool_t ValidateAgainstSubschema(Element& schemaElement); 
+    std::string GetReferencePath(void);
+    void SetReferencePath(const std::string& referencePath);
     
 private:
-    bool_t ValidateRequiredProperties(Element& schemaElement);
-    bool_t ValidateAdditionalProperties(Element& schemaElement);    
-    bool_t ValidateSizeAgainstSubschema(Element& schemaElement);
-    bool_t ValidatePropertyDependencies(Element& schemaElement);
+    Element& GetReferencedElement(void) const;
+    void ResolveReferencedElement(void);
 
-    JVJSON_OBJECT_TYPE map;
-
+    Element* referencedElement;
+    std::string referencePath;
+    ElementString* referencePathElement;
 };
 
 };

@@ -15,6 +15,7 @@ SOURCES=source/document.cpp \
         source/element_number.cpp \
         source/element_null.cpp \
         source/element_object.cpp \
+        source/element_reference.cpp \
         source/element_string.cpp \
         source/element_type.cpp \
         source/exception.cpp \

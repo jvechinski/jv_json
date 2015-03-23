@@ -60,16 +60,16 @@ public:
     std::string GetFilename(void);
     void SetFilename(const std::string& filename);
 
-    char* GetSchemaFilename(void);
-    void SetSchemaFilename(const char* filename);
+    std::string GetSchemaFilename(void);
+    void SetSchemaFilename(const std::string& filename);
     
     Element& GetRootElement(void);
 
-    bool_t HasElement(const char* elementName);
-    bool_t HasElement(uint32_t elementIndex);
+    bool_t HasElement(const std::string& elementName);
+    bool_t HasElement(const uint32_t elementIndex);
     
-    Element& GetElement(const char* elementName);
-    Element& GetElement(uint32_t elementIndex);
+    Element& GetElement(const std::string& elementName, bool_t* exists=nullptr);
+    Element& GetElement(const uint32_t elementIndex, bool_t* exists=nullptr);
     
     Element& GetUndefinedElement(void);
     
@@ -125,7 +125,8 @@ private:
     Element* ConstructElementFromCjsonItem(cJSON* item);
     Element* InternalReadFromJsonFile(std::string filename);
     bool_t PairWithSchemaElements(void);
-    void AllocateValueTable(void);
+    void HandleJsonReferences(void);
+    Element& GetElementByPath(const std::string& path, bool_t* exists=nullptr);
 
     std::string filename;
     std::string schemaFilename;

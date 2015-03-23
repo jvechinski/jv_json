@@ -50,6 +50,33 @@ void ElementObject::AddElement(const std::string& elementName, Element& element)
     this->map[elementName] = &element;
 }
 
+void ElementObject::ReplaceElement(Element& elementToReplace, Element& element)
+{
+    std::string elementName("$$$");
+    
+    // Get the name of the element being replaced.  We are checking
+    // to see if pointers match... this may not be the best idea?
+    for (JVJSON_OBJECT_TYPE::iterator i = this->map.begin(); 
+         i != this->map.end(); 
+         i++)
+    {
+        if (i->second == &elementToReplace)
+        {
+            elementName = i->first;
+            break;
+        }
+    }
+    
+    if (elementName != "$$$")
+    {
+        // Call the parent class ReplaceElement() function, which performs
+        // common replace behavior.
+        Element::ReplaceElement(elementToReplace, element);    
+        
+        this->map[elementName] = &element;
+    }
+}
+
 std::size_t ElementObject::GetSize(void) const
 {
     return this->map.size();

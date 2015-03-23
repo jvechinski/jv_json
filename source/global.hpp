@@ -48,6 +48,9 @@
 /// interface.
 #define JVJSON_OBJECT_TYPE std::map<std::string,Element*>
 
+/// This is the type used internally to represent a JSON Array.
+/// Can be any object with an interface that matches the std::vector
+/// interface.
 #define JVJSON_ARRAY_TYPE std::vector<Element*>
 
 /// This macro is used to determine the alignment of native types.
