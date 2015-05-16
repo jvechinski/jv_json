@@ -37,7 +37,7 @@ Document Objects
 
 Document objects represent a single JSON document or file.  The
 simplest code to parse a JSON file involves creating a Document
-and then calling ReadFromFile.
+and then calling `ReadFromFile()`.
 
     #include <jv_json.hpp>
     
@@ -106,10 +106,47 @@ syntax can be useful when manipulating a deeply nested JSON file.
 
 Example JSON File:
 
+    {
+        "type_array": [
+            1, 
+            2.0, 
+            "hello", 
+            {
+                "deep_bool_true": true, 
+                "deep_string": "jv_json"
+            }, 
+            true, 
+            false
+        ], 
+        "type_bool_false": false, 
+        "type_bool_true": true, 
+        "type_float": -3.14, 
+        "type_float_exponent": 4e-24, 
+        "type_integer": 55, 
+        "type_null": null, 
+        "type_string": "world"
+    }
+
 Example Code:
 
+    #include <iostream>
+    #include <jv_json.hpp>
+    
+    jv_json::Document* document = new jv_json::Document();
+    bool_t result = document->ReadFromFile("sample.json");
+    Element& rootElement = document->GetRootElement();
+    
+    // Use JSON pointers to access values of deeply nested 
+    // elements.
+    std::cout << "deep_bool_true value: " << 
+        document->GetElement("#/type_array/3/deep_bool_true").GetValueAsBool() << std::endl;
+    std::cout << "deep_string value: " << 
+        rootElement->GetElement("#/type_array/3/deep_string").GetValueAsString() << std::endl;
+        
 Output:
 
+    deep_bool_true value: true
+    deep_string value: jv_json
 
 JSON Schemas
 ------------
@@ -139,8 +176,45 @@ missing from the file that the schema is being used to validate.
 
 Example JSON File:
 
+    {
+        "type_bool_true": true, 
+        "type_string": "world"
+    }
 
+Example JSON Schema:
 
+    {
+        "type": "object",
+        "properties": {
+            "type_bool_true": {
+                "type": "boolean"
+            }, 
+            "type_string": {            
+                "type": "string"
+            }
+            "type_integer": {
+                "type": "integer",
+                "default": 55
+            }
+        }    
+    }
+
+Example Code:
+
+    #include <iostream>
+    #include <jv_json.hpp>
+    
+    jv_json::Document* document = new jv_json::Document();
+    bool_t result = document->ReadFromFile("sample.json");
+    
+    Element& defaultIntegerElement = document->GetElement("#/type_integer");
+    
+    std::cout << "Default integer element, value " << 
+        array1Element.GetValueAsInt32() << std::endl;
+
+Output:
+        
+    Default integer element, value 55
 
 JSON References
 ---------------
@@ -155,26 +229,61 @@ used to determine if an element is a reference.
 
 Example JSON File:
 
+    {
+        "type_array": [
+            1, 
+            2.0, 
+            "hello", 
+            {
+                "deep_bool_true": true, 
+                "deep_string": "jv_json"
+            }, 
+            true, 
+            false
+        ], 
+        "type_reference": { '$ref': '#/type_array/1' }
+    }
 
+Example Code:
+
+    #include <iostream>
+    #include <jv_json.hpp>
+    
+    jv_json::Document* document = new jv_json::Document();
+    bool_t result = document->ReadFromFile("sample.json");
+    
+    Element& array1Element = document->GetElement("#/type_array/1");
+    Element& referenceElement = document->GetElement("#/type_reference");
+    
+    std::cout << "type_array[1], value " << array1Element.GetValueAsFloat32() <<
+        ", is reference " << array1Element.IsReference() << std::endl;
+
+    std::cout << "type_reference, value " << referenceElement.GetValueAsFloat32() <<
+        ", is reference " << referenceElement.IsReference() << std::endl;
+        
+Output:
+
+    type_array[1], value 2.000000, is reference false
+    type_reference, value 2.000000, is reference true
 
 Future
 ------
 
 The following features are planned for future versions of JV JSON:
 
-[ ] "Document Manager" class to manage access to multiple open JSON 
-    documents.
-[ ] JSON References between documents.
-[ ] Optional set value protection, to allow values to be set 
-    simultaneously from multiple threads.
-[ ] Transactions, to allow atomic changes of multiple element values.
-[ ] JSON writer or serializer, in order to be able to save changed
-    values.
-[ ] Replace underlying cJSON parser with something written in C++.
-[ ] Better unit tests, especially covering all Element methods for
-    all Element types, and for complex JSON document cases.
-[ ] Check JSON schema for validatity by validating it against the
-    meta schema.
+- [ ] "Document Manager" class to manage access to multiple open JSON 
+      documents.
+- [ ] JSON References between documents.
+- [ ] Optional set value protection, to allow values to be set 
+      simultaneously from multiple threads.
+- [ ] Transactions, to allow atomic changes of multiple element values.
+- [ ] JSON writer or serializer, in order to be able to save changed
+      values.
+- [ ] Replace underlying cJSON parser with something written in C++.
+- [ ] Better unit tests, especially covering all Element methods for
+      all Element types, and for complex JSON document cases.
+- [ ] Check JSON schema for validatity by validating it against the
+      meta schema.
 
 License
 -------
