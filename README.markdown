@@ -139,9 +139,11 @@ Example Code:
     // Use JSON pointers to access values of deeply nested 
     // elements.
     std::cout << "deep_bool_true value: " << 
-        document->GetElement("#/type_array/3/deep_bool_true").GetValueAsBool() << std::endl;
+        document->GetElement("#/type_array/3/deep_bool_true").GetValueAsBool() << 
+        std::endl;
     std::cout << "deep_string value: " << 
-        rootElement->GetElement("#/type_array/3/deep_string").GetValueAsString() << std::endl;
+        rootElement->GetElement("#/type_array/3/deep_string").GetValueAsString() << 
+        std::endl;
         
 Output:
 
@@ -207,6 +209,9 @@ Example Code:
     jv_json::Document* document = new jv_json::Document();
     bool_t result = document->ReadFromFile("sample.json");
     
+    // Get a reference to the default integer type Element that
+    // should have been created (it was not in the file, but a
+    // default was in the schema).
     Element& defaultIntegerElement = document->GetElement("#/type_integer");
     
     std::cout << "Default integer element, value " << 
@@ -252,7 +257,11 @@ Example Code:
     jv_json::Document* document = new jv_json::Document();
     bool_t result = document->ReadFromFile("sample.json");
     
+    // Get a reference to element 1 of type_array.
     Element& array1Element = document->GetElement("#/type_array/1");
+    
+    // Get a reference to the JSON reference element, which is a
+    // reference to element 1 of type_array.
     Element& referenceElement = document->GetElement("#/type_reference");
     
     std::cout << "type_array[1], value " << array1Element.GetValueAsFloat32() <<
