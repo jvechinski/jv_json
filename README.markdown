@@ -28,60 +28,81 @@ self-contained (i.e. did not require a lot of additional support
 libraries to bloat the code).
 
 [libvariant from gallen](https://bitbucket.org/gallen/libvariant) comes 
-close to meeting the requirements for this application.  
-However, its license meant that it could not be used.  
-Also, it was missing a few features, notably support for default values.   
-So JV JSON was born.
+close to meeting the requirements for this application.  However, its 
+GPL license meant that it could not be used.  Also, it was missing a 
+few features, notably support for default values.  So JV JSON was born.
 
 Document Objects
 ----------------
 
 Document objects represent a single JSON document or file.  The
 simplest code to parse a JSON file involves creating a Document
-and then calling .
+and then calling ReadFromFile.
 
     #include <jv_json.hpp>
     
     jv_json::Document* document = new jv_json::Document();
-    bool_t document->
+    bool_t result = document->ReadFromFile("sample.json");
 
 Once a Document object has parsed a file, the following methods are 
 commonly called on it to manipulate the document.
 
 * **`GetRootElement()`** - Gets the root or top level element from the 
   document.
-* GetElement() - Gets any individual element from the document; 
-  JSON Pointer notion is suppored.
+* **`GetElement(element)`** - Gets any individual element from the 
+  document; JSON Pointer notion is suppored.
 
 Element Objects
 ---------------
 
 Elements represent a single JSON element or item in a Document.
 Elements can either be simple values, like integers or strings, or
-complex container types, like arrays and 
+complex container types, like arrays and objects (dictionaries).
 
 The base Element class acts like a variant, making the behavior
 of all types of Elements consistent.  
 
 The element types currently supported:
 
-Common operations:
+* Null
+* Boolean
+* Integer
+* Float
+* String 
+* Array
+* Object
 
-* GetValue() - Gets the current value of an Element.
-* SetValue() - Sets the value of an Element to the provided value.
+Frequently used operations:
+
+* **`GetType()`** - Gets the type of an Element.
+* **`IsContainer()`** - Returns a boolean indicating whether this is a 
+  container type or a simple type.
+* **`GetValue(valueReference)`** - Gets the current value of an 
+  Element.  A reference to a variable is passed in, and the variable 
+  value is set equal to the Element value.
+* **`GetValueAs...()`** - Alternative way to get the value of an 
+  Element.  Returns the value of the Element as the data type specified
+  (i.e. GetValueAsFloat64() would return the value as a 64-bit floating
+   point number).
+* **`SetValue(value)`** - Sets the value of an Element to the provided 
+  value.
 
 Container type elements also support additional operations:
 
-* HasElement() - Check if a container Element contains a 
-* GetElement() - 
-*
+* **`HasElement(elementNameOrIndex)`** - Check if a container Element 
+  contains a child element specified.
+* **`GetElement(element)`** - Returns a reference to the child element
+  specified.
+* **`operator[]`** - The [] operator works the same as GetElement() on
+  container types.
 
 JSON Pointers
 -------------
 
 The JSON Pointer (aka address) notation can be used to refer to
-Elements within a Document.  This can be useful when manipulating
-a deeply nested JSON file.  
+Elements within a Document.  JSON Pointer notation is specified in
+[RFC 6901](http://www.rfc-archive.org/getrfc.php?rfc=6901). This 
+syntax can be useful when manipulating a deeply nested JSON file.  
 
 Example JSON File:
 
@@ -93,28 +114,30 @@ Output:
 JSON Schemas
 ------------
 
-JV JSON supports validating a JSON document /file against a JSON schema. 
+JV JSON supports validating a JSON document or file against a JSON schema. 
 More information on JSON Schemas can be found at 
 [json-schema.org](http://json-schema.org/).  A more user friendly 
-document describing how to use JSON schemas in the real world is.
+document describing how to use JSON schemas in the real world is
+[Understanding JSON Schema](http://spacetelescope.github.io/understanding-json-schema/).
 
 JV JSON only supports JSON schema version 4.
 
 To validate a file against a schema, simply provide the schema 
-filename to the `Document::` method.
+filename to the `Document::ReadFromFile` method.  If the document 
+validates against the schema, `ReadFromFile()` will return true.
 
 Also note that schema file information is saved and is used to check / 
 enforce requirements on Element set value operations.  This means that 
-it is impossible for a document to become invalid by user action.
+it is impossible for a document to become invalid by normal user action.
 
 Default Values
 --------------
 
-JV JSON supports the "default" keyword in JSON schema files.  This
+JV JSON supports the optional "default" keyword in JSON schema files.  This 
 keyword allows the schema file to provide a default value if it is
 missing from the file that the schema is being used to validate.
 
-Example:
+Example JSON File:
 
 
 
@@ -122,15 +145,15 @@ Example:
 JSON References
 ---------------
 
-JV JSON supports JSON References, as defined by RFC  .  Currently only 
-intradocument (that is, references to other elements within the same 
-document) are supported.
+JV JSON supports JSON References, as defined by [this draft RFC](https://tools.ietf.org/html/draft-pbryan-zyp-json-ref-02).  
+Currently only intradocument (that is, references to other elements 
+within the same document) are supported.
 
 Reference elements appear and behave identically as the referred 
-elements.  The `IsReferenced()` method can be used to determine if an 
-element is a reference.
+elements.  The `IsReferenced()` method of the Element class can be 
+used to determine if an element is a reference.
 
-Example:
+Example JSON File:
 
 
 
